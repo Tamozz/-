@@ -624,14 +624,13 @@ import {
   onSnapshot, query, orderBy, limit, enableIndexedDbPersistence
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
-const firebaseConfig = { 
-  apiKey : "AIzaSyBT_LwbhpFBLcLV2siytaBhDOhXtz88xIs" , 
-  authDomain : "tamozmenu.firebaseapp.com" , 
-  projectId : "tamozmenu" , 
-  storageBucket : "tamozmenu.firebasestorage.app" , 
-  messagingSenderId : "45224085821" , 
-  معرف التطبيق : "1:45224085821:web:4a4134c23e5215f49b5d54 " 
-  معرف القياس : "G-K4J61DFMP5" 
+const firebaseConfig = {
+  apiKey:           "AIzaSyBT_LwbhpFBLcLV2siytaBhDOhXtz88xIs",
+  authDomain:       "tamozmenu.firebaseapp.com",
+  projectId:        "tamozmenu",
+  storageBucket:    "tamozmenu.firebasestorage.app",
+  messagingSenderId:"45224085821",
+  appId:            "1:45224085821:web:4a4134c23e5215f49b5d54"
 };
 
 const fbApp = initializeApp(firebaseConfig);
@@ -653,11 +652,7 @@ window._fsQuery   = query;
 window._fsOrderBy = orderBy;
 window._fsLimit   = limit;
 window._fsOnSnapshot = onSnapshot;
-
-// التهيئة الرئيسية — تبدأ هنا بعد ربط Firebase
-await fsLoadAll();
-firebaseReady = true;
-startRealtimeListeners();
+// Firebase جاهز — التحميل الفعلي يحدث في الـ IIFE أسفل الصفحة
 
 /* ============================================================ STATE ============================================================ */
 let MENU = [
@@ -823,6 +818,7 @@ async function fsLoadAll(){
 }
 
 async function fsSaveConfig(){
+  saveArchive(); // حفظ فوري محلي دائماً
   if (!firebaseReady) return;
   try{
     await window._fsSetDoc(CONFIG_REF, {
@@ -866,9 +862,34 @@ function startRealtimeListeners(){
   );
 }
 
-// backward-compat shim: دوال القديمة لا تُستدعى بعد الآن
-function saveArchive(){}
-function loadArchive(){}
+const ARCHIVE_KEY = 'tamoozArchive_v2';
+function saveArchive(){
+  try{
+    const snapshot = {SETTINGS, EMPLOYEES, FEATURES, THEME, MENU:menuForFirestore(), orderCounter, complaintCounter, DEV_PASSWORD};
+    localStorage.setItem(ARCHIVE_KEY, JSON.stringify(snapshot));
+  }catch(e){}
+}
+function loadArchive(){
+  try{
+    const raw = localStorage.getItem(ARCHIVE_KEY);
+    if (!raw) return;
+    const d = JSON.parse(raw);
+    if (d.settings)  Object.assign(SETTINGS, d.settings);
+    if (d.SETTINGS)  Object.assign(SETTINGS, d.SETTINGS);
+    if (d.menu)      MENU = d.menu.map(m=>({...m,image:null}));
+    if (d.MENU)      MENU = d.MENU.map(m=>({...m,image:null}));
+    if (d.employees) EMPLOYEES = d.employees;
+    if (d.EMPLOYEES) EMPLOYEES = d.EMPLOYEES;
+    if (d.features)  Object.assign(FEATURES, d.features);
+    if (d.FEATURES)  Object.assign(FEATURES, d.FEATURES);
+    if (d.theme)     Object.assign(THEME, d.theme);
+    if (d.THEME)     Object.assign(THEME, d.THEME);
+    if (d.devPassword)  DEV_PASSWORD = d.devPassword;
+    if (d.DEV_PASSWORD) DEV_PASSWORD = d.DEV_PASSWORD;
+    if (typeof d.orderCounter    === 'number') orderCounter    = d.orderCounter;
+    if (typeof d.complaintCounter === 'number') complaintCounter = d.complaintCounter;
+  }catch(e){}
+}
 
 function applyBrandColor(key){
   const sw = SWATCHES.find(s=>s.key===key) || SWATCHES[0];
@@ -1200,6 +1221,7 @@ function submitOrder(){
   sessionOrderCount++;
   fsSaveOrder(order);
   fsSaveConfigDebounced();
+  saveArchive();
 
   playAlertSound();
   sendWhatsAppForOrder(order);
@@ -1820,6 +1842,7 @@ function submitComplaint(){
   COMPLAINTS.unshift(complaint);
   fsSaveComplaint(complaint);
   fsSaveConfigDebounced();
+  saveArchive();
   sendComplaintToWhatsApp(complaint);
   hideSheet();
   toast('✅ تم إرسال شكواك، شكراً لك');
@@ -2235,34 +2258,47 @@ function startApp(){
   setMode('customer');
 }
 
-// شاشة تحميل — تُخفى بعد جلب البيانات من Firestore
 function setLoadingMsg(msg){ const el = document.getElementById('loadingMsg'); if(el) el.textContent = msg; }
 function hideLoading(){
   const ls = document.getElementById('loadingScreen');
   if (!ls) return;
-  ls.style.transition = 'opacity .45s';
+  ls.style.transition = 'opacity .3s';
   ls.style.opacity = '0';
-  setTimeout(()=>ls.remove(), 480);
+  setTimeout(()=>ls.remove(), 320);
 }
 
-// مؤشر الاتصال
 window.addEventListener('online',  ()=>{ const b=document.getElementById('connBadge'); if(b){ b.textContent='☁️ متصل'; b.className='conn-badge conn-online'; setTimeout(()=>b.className='conn-badge',3000); } });
 window.addEventListener('offline', ()=>{ const b=document.getElementById('connBadge'); if(b){ b.textContent='⚡ بدون إنترنت — البيانات محفوظة محلياً'; b.className='conn-badge conn-offline'; } });
 
-// الإقلاع الرئيسي
+/* ------------------------------------------------------------------
+   الإقلاع السريع:
+   ١) تحميل localStorage فوراً → عرض الواجهة في < 100ms
+   ٢) Firebase يتزامن في الخلفية بدون أي انتظار من الزبون
+------------------------------------------------------------------ */
 (async()=>{
-  try{
-    setLoadingMsg('جاري الاتصال بقاعدة البيانات...');
-    await fsLoadAll();
-    startRealtimeListeners();
-    setLoadingMsg('جاهز');
-  }catch(e){
-    console.warn('[تموز] Firebase error:', e.message);
-    setLoadingMsg('وضع بدون إنترنت — جاري التحميل...');
-    await new Promise(r=>setTimeout(r,900));
-  }
+  // ① تحميل فوري من localStorage (< 50ms)
+  loadArchive();
   hideLoading();
   startApp();
+
+  // ② مزامنة Firebase في الخلفية — الزبون لا يرى أي توقف
+  try{
+    await fsLoadAll();
+    firebaseReady = true;
+    // حفظ البيانات المحدّثة محلياً
+    saveArchive();
+    // تحديث الواجهة إذا تغيّرت بيانات القائمة أو الإعدادات
+    applyTheme();
+    renderMenu();
+    renderTabs();
+    renderStatGrid();
+    renderEmployeeList();
+    applyFeatures();
+    // تشغيل المستمع الفوري للطلبيات
+    startRealtimeListeners();
+  }catch(e){
+    console.warn('[تموز] Firebase background sync:', e.message);
+  }
 })();
 
 </script>
