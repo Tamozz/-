@@ -8,6 +8,44 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Lalezar&family=El+Messiri:wght@600;700&family=Reem+Kufi:wght@600;700&family=Cairo:wght@500;600;700;800&family=Almarai:wght@400;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet" />
+
+<!-- ======= Firebase SDK (v10 Modular CDN) ======= -->
+<script type="module">
+/* ══════════════════════════════════════════════════════
+   🔥 FIREBASE CONFIG — ضع هنا بيانات مشروعك من Firebase
+   firebaseConfig.js أو انسخها مباشرة بعد إنشاء المشروع
+   ══════════════════════════════════════════════════════ */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getFirestore, doc, collection,
+  setDoc, getDoc, getDocs, addDoc, updateDoc, deleteDoc,
+  onSnapshot, query, orderBy, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+/* ─── ✏️ ضع بيانات Firebase هنا ─── */
+const firebaseConfig = {
+  apiKey:            "AIzaSyBT_LwbhpFBLcLV2siytaBhDOhXtz88xIs",
+  authDomain:        "tamozmenu.firebaseapp.com",
+  projectId:         "tamozmenu",
+  storageBucket:     "tamozmenu.firebasestorage.app",
+  messagingSenderId: "45224085821",
+  appId:             "1:45224085821:web:4a4134c23e5215f49b5d54"
+};
+/* ─────────────────────────────────── */
+
+const fbApp = initializeApp(firebaseConfig);
+const db    = getFirestore(fbApp);
+
+/* ══ نجعل Firebase متاحاً للكود الرئيسي (non-module) ══ */
+window.__fb = {
+  db, doc, collection,
+  setDoc, getDoc, getDocs, addDoc, updateDoc, deleteDoc,
+  onSnapshot, query, orderBy, serverTimestamp
+};
+
+/* ══ نُعلم الكود الرئيسي أن Firebase جاهز ══ */
+window.dispatchEvent(new Event('firebase-ready'));
+</script>
 <style>
 :root{
   --c-bg:#f7ecd8; --c-ink:#15302b; --c-ink-soft:#1d3d36;
@@ -223,10 +261,6 @@ body.mode-dark .brand small{color:var(--o-muted)}
 .editor-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:.6rem}
 .add-item-btn{display:flex;align-items:center;gap:.4rem;background:var(--o-green);color:#06140d;font-weight:700;font-size:.8rem;padding:.55rem 1rem;border-radius:8px}
 .editor-row{display:flex;align-items:center;gap:.8rem;padding:.8rem;background:var(--o-panel);border:1px solid var(--o-line);border-radius:var(--radius-sm);margin-bottom:.6rem}
-.cat-row{display:flex;align-items:center;gap:.8rem;padding:.7rem .9rem;background:var(--o-panel);border:1px solid var(--o-line);border-radius:var(--radius-sm);margin-bottom:.5rem}
-.cat-row-icon{font-size:1.1rem;flex-shrink:0}
-.cat-row-name{flex:1;font-size:.86rem;font-weight:700}
-.cat-row-count{font-size:.72rem;color:var(--o-muted);background:var(--o-panel-2);padding:.2rem .6rem;border-radius:999px;flex-shrink:0}
 .editor-emoji{font-size:1.4rem;width:36px;height:36px;text-align:center;flex-shrink:0;border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:var(--o-panel-2)}
 .editor-emoji img{width:100%;height:100%;object-fit:cover}
 .editor-info{flex:1;min-width:0}
@@ -258,26 +292,17 @@ body.mode-dark .brand small{color:var(--o-muted)}
 .toggle-row{display:flex;align-items:center;justify-content:space-between;max-width:420px;background:var(--o-panel-2);border:1px solid var(--o-line);border-radius:var(--radius-sm);padding:.8rem 1rem}
 .toggle-row span{font-size:.85rem;font-weight:700}
 
-.dev-design-row{margin-bottom:1.1rem;max-width:480px}
-.dev-design-row label{display:block;font-size:.82rem;font-weight:700;margin-bottom:.5rem}
+.dev-design-row{margin-bottom:1.1rem;max-width:420px}
+.dev-design-row label{display:block;font-size:.82rem;font-weight:700;margin-bottom:.4rem}
 .dev-design-row select{width:100%;padding:.6rem .8rem;border-radius:8px;border:1px solid var(--o-line);background:var(--o-panel-2);color:var(--o-ink);font-size:.88rem}
-.dev-color-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.7rem}
-.dev-color-item{display:flex;align-items:center;gap:.6rem;background:var(--o-panel-2);border:1px solid var(--o-line);border-radius:8px;padding:.5rem .7rem}
-.dev-color-item input[type=color]{width:34px;height:34px;border:1px solid var(--o-line);border-radius:6px;background:none;padding:1px;cursor:pointer;flex-shrink:0}
-.dev-color-item span{font-size:.76rem;color:var(--o-muted)}
-.dev-radius-grid{display:flex;gap:.7rem;flex-wrap:wrap}
-.dev-radius-item{flex:1;min-width:100px;display:flex;flex-direction:column;gap:.4rem;background:var(--o-panel-2);border:1px solid var(--o-line);border-radius:8px;padding:.6rem .7rem}
-.dev-radius-item span{font-size:.74rem;color:var(--o-muted)}
-.dev-radius-item input{width:100%;padding:.4rem .5rem;border-radius:6px;border:1px solid var(--o-line);background:var(--o-panel);color:var(--o-ink);font-size:.88rem;direction:ltr;text-align:center}
+.dev-radius-options{display:flex;gap:.6rem;flex-wrap:wrap}
+.radius-opt{flex:1;min-width:110px;padding:.7rem .6rem;border-radius:8px;border:1.5px solid var(--o-line);background:var(--o-panel-2);color:var(--o-muted);font-size:.8rem;font-weight:700}
+.radius-opt.active{border-color:var(--o-green);color:var(--o-green);background:rgba(93,220,151,.1)}
 .dev-feature-row{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.7rem 0;border-bottom:1px dashed var(--o-line)}
 .dev-feature-row:last-child{border-bottom:none}
 .dev-feature-row span{font-size:.85rem}
 
 .sample-flag{display:inline-flex;align-items:center;gap:.4rem;font-size:.7rem;color:var(--o-amber);background:rgba(240,167,60,.12);border:1px solid rgba(240,167,60,.3);padding:.3rem .7rem;border-radius:999px;margin-top:1rem}
-@keyframes _spin{to{transform:rotate(360deg)}}
-.conn-badge{position:fixed;bottom:14px;right:12px;font-size:.72rem;font-weight:700;padding:.3rem .7rem;border-radius:999px;z-index:80}
-.conn-online{background:rgba(93,220,151,.18);color:var(--o-green);border:1px solid rgba(93,220,151,.35)}
-.conn-offline{background:rgba(240,167,60,.18);color:var(--o-amber);border:1px solid rgba(240,167,60,.35)}
 
 /* image upload form bits */
 .img-drop{border:2px dashed var(--c-line);border-radius:var(--radius-sm);padding:1.2rem;text-align:center;font-size:.82rem;color:var(--c-muted);cursor:pointer}
@@ -353,7 +378,7 @@ body.mode-dark .brand small{color:var(--o-muted)}
     <div class="dash-head">
       <span class="eyebrow">وضع الموظف</span>
       <h2 id="empWelcome">أهلاً</h2>
-      <p>جهّز الطلبيات، حدّث حالتها، واطبع الفاتورة لكل طلب — لا أسعار ولا إعدادات هنا</p>
+      <p>هنا فقط الطلبيات التي تحتاج تجهيزاً — لا أسعار ولا إعدادات</p>
     </div>
     <div class="orders-head">
       <p style="font-size:.84rem;color:var(--o-muted);margin:0">كل طلب جديد يظهر هنا فوراً</p>
@@ -441,11 +466,6 @@ body.mode-dark .brand small{color:var(--o-muted)}
         <p style="font-size:.84rem;color:var(--o-muted);margin:0">بدّل أي سعر، أطفئ طبقاً نفد، أو أضف طبقاً جديداً بصورة حقيقية</p>
         <button class="add-item-btn" id="addItemBtn">➕ إضافة عنصر جديد</button>
       </div>
-
-      <div class="settings-section-title">التصنيفات</div>
-      <div id="categoryManageList" style="margin-bottom:1.4rem"></div>
-
-      <div class="settings-section-title">كل العناصر</div>
       <div id="editorList"></div>
     </div>
 
@@ -553,7 +573,7 @@ body.mode-dark .brand small{color:var(--o-muted)}
 
     <div class="panel" style="margin-bottom:1rem">
       <h4>تصميم النظام — حرية كاملة</h4>
-      <p style="font-size:.8rem;color:var(--o-muted);margin-bottom:1rem">يطبَّق فوراً على واجهة الزبون بالكامل — لا حاجة لإعادة تحميل الصفحة. غيّر أي قيمة بحرية تامة</p>
+      <p style="font-size:.8rem;color:var(--o-muted);margin-bottom:1rem">يطبَّق فوراً على واجهة الزبون بالكامل — لا حاجة لإعادة تحميل الصفحة</p>
 
       <div class="dev-design-row">
         <label>خط النصوص العام</label>
@@ -563,27 +583,14 @@ body.mode-dark .brand small{color:var(--o-muted)}
         <label>خط العناوين الكبيرة</label>
         <select id="devDisplayFont"></select>
       </div>
-
       <div class="dev-design-row">
-        <label>ألوان الواجهة (حرية كاملة RGB)</label>
-        <div class="dev-color-grid">
-          <div class="dev-color-item"><input type="color" id="devBgColor" /><span>خلفية الصفحة</span></div>
-          <div class="dev-color-item"><input type="color" id="devPanelColor" /><span>خلفية البطاقات</span></div>
-          <div class="dev-color-item"><input type="color" id="devPanel2Color" /><span>خلفية ثانوية</span></div>
-          <div class="dev-color-item"><input type="color" id="devInkColor" /><span>لون النص</span></div>
+        <label>شكل الزوايا</label>
+        <div class="dev-radius-options" id="devRadiusOptions">
+          <button type="button" class="radius-opt" data-radius="sharp">حادة</button>
+          <button type="button" class="radius-opt" data-radius="rounded">دائرية متوسطة</button>
+          <button type="button" class="radius-opt" data-radius="pill">دائرية كاملة</button>
         </div>
       </div>
-
-      <div class="dev-design-row">
-        <label>استدارة الزوايا (أي قيمة بالبكسل من 0 إلى 60)</label>
-        <div class="dev-radius-grid">
-          <div class="dev-radius-item"><span>كبيرة</span><input type="number" id="devRadiusLg" min="0" max="60" /></div>
-          <div class="dev-radius-item"><span>متوسطة</span><input type="number" id="devRadiusMd" min="0" max="60" /></div>
-          <div class="dev-radius-item"><span>صغيرة</span><input type="number" id="devRadiusSm" min="0" max="60" /></div>
-        </div>
-      </div>
-
-      <button type="button" class="print-btn-sm" id="devResetThemeBtn" style="margin-top:.4rem">↺ استعادة التصميم الافتراضي</button>
     </div>
 
     <div class="panel" style="margin-bottom:1rem">
@@ -608,52 +615,9 @@ body.mode-dark .brand small{color:var(--o-muted)}
   <div id="sheetBody"></div>
 </div>
 <div class="toast" id="toast"></div>
-<div id="loadingScreen" style="position:fixed;inset:0;background:#15302b;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;font-family:'Tajawal',sans-serif;color:#fdf6e8;gap:.8rem">
-  <div style="font-size:3rem">🌴</div>
-  <div style="font-size:1.3rem;font-weight:800">نظام تموز</div>
-  <div style="width:32px;height:32px;border:3px solid rgba(255,255,255,.2);border-top-color:#e8923c;border-radius:50%;animation:_spin .8s linear infinite"></div>
-  <div style="font-size:.82rem;opacity:.7" id="loadingMsg">جاري التهيئة...</div>
-</div>
-<div class="conn-badge" id="connBadge"></div>
 <div id="receiptArea" class="receipt-print"></div>
 
-<script type="module">
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-import {
-  getFirestore, collection, doc, getDoc, getDocs, setDoc,
-  onSnapshot, query, orderBy, limit, enableIndexedDbPersistence
-} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
-
-const firebaseConfig = {
-  apiKey:           "AIzaSyBT_LwbhpFBLcLV2siytaBhDOhXtz88xIs",
-  authDomain:       "tamozmenu.firebaseapp.com",
-  projectId:        "tamozmenu",
-  storageBucket:    "tamozmenu.firebasestorage.app",
-  messagingSenderId:"45224085821",
-  appId:            "1:45224085821:web:4a4134c23e5215f49b5d54"
-};
-
-const fbApp = initializeApp(firebaseConfig);
-db = getFirestore(fbApp);
-
-// دعم العمل بدون إنترنت (IndexedDB cache)
-enableIndexedDbPersistence(db).catch(()=>{});
-
-CONFIG_REF    = doc(db, 'config',     'main');
-ORDERS_COL    = collection(db, 'orders');
-COMPLAINTS_COL= collection(db, 'complaints');
-
-// نُعرّض دوال Firestore على window حتى تستخدمها دوال الـ async في الأسفل
-window._fsGetDoc  = getDoc;
-window._fsGetDocs = getDocs;
-window._fsSetDoc  = setDoc;
-window._fsDoc     = doc;
-window._fsQuery   = query;
-window._fsOrderBy = orderBy;
-window._fsLimit   = limit;
-window._fsOnSnapshot = onSnapshot;
-// Firebase جاهز — التحميل الفعلي يحدث في الـ IIFE أسفل الصفحة
-
+<script>
 /* ============================================================ STATE ============================================================ */
 let MENU = [
   {id:1, cat:'مشاوي', name:'تكة لحم مشوي', price:18000, emoji:'🍖', image:null, desc:'قطع لحم طرية متبّلة، تُشوى على الفحم وتُقدّم مع صمونة وسلطة', tags:['الأكثر طلباً'], available:true},
@@ -674,6 +638,7 @@ let MENU = [
 let SETTINGS = {
   name:'نخلة الذهب', tagline:'مطاعم ومشاوي عراقية أصيلة', wa:'9647000000000',
   instagram:'', facebook:'', hours:'٤ عصراً - ١٢ منتصف الليل', address:'', mapsUrl:'',
+  businessType:'restaurant',
   brandKey:'saffron', customHex:null, minOrder:0, deliveryFee:0,
   pin:'owner123', soundEnabled:true,
   loyaltyThreshold:5, loyaltyReward:'حلى مجاني'
@@ -702,14 +667,20 @@ const SWATCHES = [
 ];
 const CAT_ICONS = {
   'مشاوي':'🔥','أطباق رئيسية':'🍽️','مقبلات':'🥗','مشروبات':'🥤','حلويات':'🍰',
+  'شقق':'🏠','منازل':'🏡','أراضٍ':'🗺️','محلات تجارية':'🏬',
+  'رجالي':'👔','حريمي':'👗','أطفال':'🧒',
+  'باقات':'📦','خدمات':'🛠️',
 };
-function catIcon(cat){ return CAT_ICONS[cat] || '🍴'; }
+function catIcon(cat){ return CAT_ICONS[cat] || '🏷️'; }
 
-/* ---- النظام مخصص حصراً لمطاعم وكافيهات — لا تبديل بين أنواع نشاط ---- */
-const RESTAURANT_LABELS = { item:'طبق', itemPlural:'أطباق', catalog:'القائمة', catalogSub:'امسح وأطلب · توصيل مباشر', action:'اطلب الآن', orderNoun:'طلب', orderTypes:['توصيل للمنزل','استلام من المحل','طاولة رقم 1','طاولة رقم 2','طاولة رقم 3'] };
-function bizType(){ return RESTAURANT_LABELS; }
+/* ---- نوع النشاط مثبّت على "مطعم" ---- */
+const BUSINESS_TYPE_RESTAURANT = {
+  item:'طبق', itemPlural:'أطباق', catalogSub:'امسح وأطلب · توصيل مباشر',
+  orderNoun:'طلب', orderTypes:['توصيل للمنزل','استلام من المحل','طاولة رقم 1','طاولة رقم 2','طاولة رقم 3']
+};
+function bizType(){ return BUSINESS_TYPE_RESTAURANT; }
 
-const EMOJI_CHOICES = ['🍽️','🍖','🍗','🍢','🍛','🍚','🍲','🥬','🥣','🥗','🍆','🍵','🥤','💧','🍰','🍕','🍔','🥪','🍟','🌯'];
+const EMOJI_CHOICES = ['🍽️','🍖','🍗','🍢','🍛','🍚','🍲','🥬','🥣','🥗','🍆','🍵','🥤','💧','🍰','🍕','🍔','🥪','🍟','🌯','🏠','🏡','🗺️','👔','👗','🧒','📦','🛠️','✨','⭐'];
 
 let cart = {};
 let activeCat = MENU[0].cat;
@@ -717,7 +688,7 @@ let searchTerm = '';
 let orderCounter = 100;
 let complaintCounter = 0;
 let sessionOrderCount = 0;
-let ORDERS = []; // مدعومة بـ Firestore — انظر fsSaveOrder() / fsLoadAll()
+let ORDERS = []; // archived locally on this device — see saveArchive()/loadArchive()
 let COMPLAINTS = [];
 let currentActorName = null;
 let currentMode = 'customer';
@@ -740,13 +711,8 @@ const FEATURE_LABELS = {
   deliveryRules:'حد أدنى للطلب ورسوم التوصيل', search:'شريط البحث للزبون',
 };
 
-/* ---- محرّك التصميم: حرية كاملة — خطوط، ألوان خام، وأي قيمة استدارة بالبكسل ---- */
-let THEME = {
-  bodyFont:'tajawal', displayFont:'lalezar',
-  radiusLg:20, radiusMd:14, radiusSm:9,
-  bgColor:'#f7ecd8', panelColor:'#ffffff', panel2Color:'#fff8ec', inkColor:'#15302b',
-};
-const DEFAULT_THEME = JSON.parse(JSON.stringify(THEME));
+/* ---- محرّك التصميم: يتحكم به المطوّر — خط النصوص، خط العناوين، ودرجة استدارة الزوايا ---- */
+let THEME = { bodyFont:'tajawal', displayFont:'lalezar', radius:'rounded' };
 const FONT_OPTIONS = {
   tajawal:{name:'Tajawal', stack:"'Tajawal',sans-serif"},
   cairo:{name:'Cairo', stack:"'Cairo',sans-serif"},
@@ -758,6 +724,11 @@ const DISPLAY_FONT_OPTIONS = {
   elmessiri:{name:'El Messiri', stack:"'El Messiri',sans-serif"},
   reemkufi:{name:'Reem Kufi', stack:"'Reem Kufi',sans-serif"},
   cairo:{name:'Cairo', stack:"'Cairo',sans-serif"},
+};
+const RADIUS_PRESETS = {
+  sharp:{lg:'4px', md:'4px', sm:'3px'},
+  rounded:{lg:'20px', md:'14px', sm:'9px'},
+  pill:{lg:'30px', md:'22px', sm:'16px'},
 };
 
 function fmt(n){ return n.toLocaleString('en-US') + ' د.ع'; }
@@ -779,117 +750,308 @@ function complaintsForDate(dateKey){ return COMPLAINTS.filter(c=>c.dateKey===dat
 function ordersForYear(y){ return ORDERS.filter(o=>yearKeyOf(o.dateKey)===y); }
 function complaintsForYear(y){ return COMPLAINTS.filter(c=>yearKeyOf(c.dateKey)===y); }
 
-/* ---- local archive (per-device persistence) ----
-   هذا تخزين على هذا الجهاز/المتصفح فقط — ليس قاعدة بيانات مركزية مشتركة بين عدة أجهزة.
-   إن تعذّر الوصول للتخزين (وضع التصفح الخاص، أو معاينة داخل بيئة مقيّدة) يستمر النظام
-   بالعمل بشكل طبيعي في الذاكرة المؤقتة فقط دون أي عطل. */
-/* ============================================================ FIREBASE / FIRESTORE ============================================================ */
-let db, auth, CONFIG_REF, ORDERS_COL, COMPLAINTS_COL;
-let unsubOrders = null;
-let configSaveTimer = null;
-let firebaseReady = false;
+/* ════════════════════════════════════════════════════════════════
+   🔥 FIREBASE PERSISTENCE LAYER
+   كل تغيير يحفَظ فوراً في Firebase Firestore — مشترك بين جميع
+   الأجهزة في الوقت الفعلي (Real-time). بنية المجموعات:
+     /config/settings       — إعدادات المحل
+     /config/security       — كلمات المرور (لا تُرسَل للزبون)
+     /config/features       — الميزات المفعَّلة
+     /config/theme          — إعدادات التصميم
+     /menu/{id}             — كل طبق وثيقة مستقلة
+     /employees/{id}        — الموظفون
+     /orders/{num}          — الطلبيات
+     /complaints/{num}      — الشكاوى
+   ════════════════════════════════════════════════════════════════ */
 
-function menuForFirestore(){
-  // الصور base64 كبيرة الحجم — تُخزَّن محلياً فقط وتُحذف من Firestore
-  return MENU.map(({image, ...rest}) => ({...rest, image: null}));
+let fbReady = false;
+
+/* ── مؤشر التحميل ── */
+function showLoading(msg){
+  let el = document.getElementById('fbLoader');
+  if (!el){
+    el = document.createElement('div');
+    el.id = 'fbLoader';
+    el.style.cssText = `position:fixed;inset:0;background:var(--c-bg);z-index:999;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;
+      font-family:var(--font-body);font-size:1rem;color:var(--c-ink);transition:opacity .4s`;
+    el.innerHTML = `<div style="font-size:2.5rem">🌴</div><div id="fbLoaderMsg">${msg||'جارٍ التحميل...'}</div>
+      <div style="width:48px;height:4px;background:var(--c-line);border-radius:4px;overflow:hidden">
+        <div id="fbLoaderBar" style="height:100%;background:var(--c-saffron);width:0%;transition:width .4s;border-radius:4px"></div></div>`;
+    document.body.appendChild(el);
+  }
+  document.getElementById('fbLoaderMsg').textContent = msg||'جارٍ التحميل...';
+  el.style.display = 'flex'; el.style.opacity = '1';
+}
+function setLoadingProgress(pct){ const b=document.getElementById('fbLoaderBar'); if(b) b.style.width=pct+'%'; }
+function hideLoading(){
+  const el = document.getElementById('fbLoader');
+  if(!el) return;
+  el.style.opacity='0';
+  setTimeout(()=>{ el.style.display='none'; },400);
 }
 
-async function fsLoadAll(){
+/* ════════ SAVE: كتابة إلى Firebase ════════ */
+
+async function fbSaveSettings(){
+  if(!fbReady) return fallbackSave();
+  const {db,doc,setDoc} = window.__fb;
   try{
-    const [cfgSnap, ordersSnap, complaintsSnap] = await Promise.all([
-      window._fsGetDoc(CONFIG_REF),
-      window._fsGetDocs(window._fsQuery(ORDERS_COL, window._fsOrderBy('num','desc'), window._fsLimit(500))),
-      window._fsGetDocs(window._fsQuery(COMPLAINTS_COL, window._fsOrderBy('num','desc'), window._fsLimit(200)))
-    ]);
-    if (cfgSnap.exists()){
-      const d = cfgSnap.data();
-      if (d.settings) Object.assign(SETTINGS, d.settings);
-      if (d.menu) MENU = d.menu.map(m => ({...m, image:null}));
-      if (d.employees) EMPLOYEES = d.employees;
-      if (d.features) Object.assign(FEATURES, d.features);
-      if (d.theme) Object.assign(THEME, d.theme);
-      if (d.devPassword) DEV_PASSWORD = d.devPassword;
-      if (typeof d.orderCounter === 'number') orderCounter = d.orderCounter;
-      if (typeof d.complaintCounter === 'number') complaintCounter = d.complaintCounter;
+    await setDoc(doc(db,'config','settings'), SETTINGS);
+  }catch(e){ console.warn('fbSaveSettings failed:',e); fallbackSave(); }
+}
+
+async function fbSaveSecurity(){
+  if(!fbReady) return;
+  const {db,doc,setDoc} = window.__fb;
+  try{
+    await setDoc(doc(db,'config','security'), {
+      ownerPin: SETTINGS.pin,
+      devPassword: DEV_PASSWORD,
+    });
+  }catch(e){ console.warn('fbSaveSecurity failed:',e); }
+}
+
+async function fbSaveFeatures(){
+  if(!fbReady) return;
+  const {db,doc,setDoc} = window.__fb;
+  try{ await setDoc(doc(db,'config','features'), FEATURES); }
+  catch(e){ console.warn('fbSaveFeatures:',e); }
+}
+
+async function fbSaveTheme(){
+  if(!fbReady) return;
+  const {db,doc,setDoc} = window.__fb;
+  try{ await setDoc(doc(db,'config','theme'), THEME); }
+  catch(e){ console.warn('fbSaveTheme:',e); }
+}
+
+async function fbSaveMenu(){
+  if(!fbReady) return fallbackSave();
+  const {db,doc,setDoc} = window.__fb;
+  try{
+    for(const item of MENU){
+      const d = {...item};
+      await setDoc(doc(db,'menu', String(item.id)), d);
     }
-    ORDERS = ordersSnap.docs.map(d=>d.data()).sort((a,b)=>b.num-a.num);
-    COMPLAINTS = complaintsSnap.docs.map(d=>d.data()).sort((a,b)=>b.num-a.num);
-  }catch(e){ console.warn('[تموز] Firestore load:', e.message); }
+  }catch(e){ console.warn('fbSaveMenu:',e); fallbackSave(); }
 }
 
-async function fsSaveConfig(){
-  saveArchive(); // حفظ فوري محلي دائماً
-  if (!firebaseReady) return;
+async function fbSaveMenuItemPatch(id, patch){
+  if(!fbReady) return fallbackSave();
+  const {db,doc,setDoc,updateDoc,getDoc} = window.__fb;
   try{
-    await window._fsSetDoc(CONFIG_REF, {
-      settings:SETTINGS, menu:menuForFirestore(), employees:EMPLOYEES,
-      features:FEATURES, theme:THEME, devPassword:DEV_PASSWORD,
-      orderCounter, complaintCounter
-    }, {merge:true});
-  }catch(e){ console.warn('[تموز] config save:', e.message); }
+    const ref = doc(db,'menu',String(id));
+    const snap = await getDoc(ref);
+    if(snap.exists()){
+      await updateDoc(ref, patch);
+    } else {
+      /* وثيقة جديدة */
+      await setDoc(ref, patch);
+    }
+  }catch(e){ console.warn('fbSaveMenuItemPatch:',e); fallbackSave(); }
 }
 
-function fsSaveConfigDebounced(){
-  clearTimeout(configSaveTimer);
-  configSaveTimer = setTimeout(fsSaveConfig, 900);
+async function fbDeleteMenuItem(id){
+  if(!fbReady) return;
+  const {db,doc,deleteDoc} = window.__fb;
+  try{ await deleteDoc(doc(db,'menu',String(id))); }
+  catch(e){ console.warn('fbDeleteMenuItem:',e); }
 }
 
-async function fsSaveOrder(order){
-  if (!firebaseReady) return;
+async function fbSaveEmployee(emp){
+  if(!fbReady) return;
+  const {db,doc,setDoc} = window.__fb;
+  try{ await setDoc(doc(db,'employees',String(emp.id)), emp); }
+  catch(e){ console.warn('fbSaveEmployee:',e); }
+}
+
+async function fbDeleteEmployee(id){
+  if(!fbReady) return;
+  const {db,doc,deleteDoc} = window.__fb;
+  try{ await deleteDoc(doc(db,'employees',String(id))); }
+  catch(e){ console.warn('fbDeleteEmployee:',e); }
+}
+
+async function fbSaveOrder(order){
+  if(!fbReady) return fallbackSave();
+  const {db,doc,setDoc} = window.__fb;
   try{
-    await window._fsSetDoc(window._fsDoc(db,'orders',String(order.num)), order, {merge:true});
-  }catch(e){ console.warn('[تموز] order save:', e.message); }
+    const d = {...order, handledBy: order.handledBy||null};
+    await setDoc(doc(db,'orders',String(order.num)), d);
+  }catch(e){ console.warn('fbSaveOrder:',e); fallbackSave(); }
 }
 
-async function fsSaveComplaint(complaint){
-  if (!firebaseReady) return;
+async function fbUpdateOrderStatus(order){
+  if(!fbReady) return fallbackSave();
+  const {db,doc,updateDoc} = window.__fb;
   try{
-    await window._fsSetDoc(window._fsDoc(db,'complaints',String(complaint.num)), complaint, {merge:true});
-  }catch(e){ console.warn('[تموز] complaint save:', e.message); }
+    await updateDoc(doc(db,'orders',String(order.num)), {
+      statusIdx: order.statusIdx,
+      handledBy: order.handledBy||null
+    });
+  }catch(e){ console.warn('fbUpdateOrderStatus:',e); fallbackSave(); }
 }
 
-function startRealtimeListeners(){
-  if (unsubOrders) unsubOrders();
-  unsubOrders = window._fsOnSnapshot(
-    window._fsQuery(ORDERS_COL, window._fsOrderBy('num','desc'), window._fsLimit(500)),
-    snap => {
-      ORDERS = snap.docs.map(d=>d.data()).sort((a,b)=>b.num-a.num);
-      renderOrderFeedInto('orderFeedOwner');
-      renderOrderFeedInto('orderFeedEmployee');
+async function fbSaveComplaint(complaint){
+  if(!fbReady) return fallbackSave();
+  const {db,doc,setDoc} = window.__fb;
+  try{
+    await setDoc(doc(db,'complaints',String(complaint.num)), complaint);
+  }catch(e){ console.warn('fbSaveComplaint:',e); fallbackSave(); }
+}
+
+/* ════════ LOAD: قراءة من Firebase عند أول تشغيل ════════ */
+
+async function fbLoadAll(){
+  const {db, doc, collection, getDoc, getDocs, query, orderBy} = window.__fb;
+  showLoading('جارٍ تحميل بيانات المحل...');
+  setLoadingProgress(5);
+
+  try{
+    /* 1 — الإعدادات */
+    const sSnap = await getDoc(doc(db,'config','settings'));
+    if(sSnap.exists()){
+      const d = sSnap.data();
+      Object.assign(SETTINGS, d);
+    } else {
+      /* أول تشغيل — احفظ الإعدادات الافتراضية */
+      await fbSaveSettings();
+    }
+    setLoadingProgress(20);
+
+    /* 2 — الأمان */
+    const secSnap = await getDoc(doc(db,'config','security'));
+    if(secSnap.exists()){
+      const sec = secSnap.data();
+      if(sec.ownerPin)    SETTINGS.pin = sec.ownerPin;
+      if(sec.devPassword) DEV_PASSWORD = sec.devPassword;
+    } else {
+      await fbSaveSecurity();
+    }
+    setLoadingProgress(30);
+
+    /* 3 — الميزات */
+    const featSnap = await getDoc(doc(db,'config','features'));
+    if(featSnap.exists()) Object.assign(FEATURES, featSnap.data());
+    else await fbSaveFeatures();
+    setLoadingProgress(40);
+
+    /* 4 — التصميم */
+    const themeSnap = await getDoc(doc(db,'config','theme'));
+    if(themeSnap.exists()) Object.assign(THEME, themeSnap.data());
+    else await fbSaveTheme();
+    setLoadingProgress(50);
+
+    /* 5 — القائمة */
+    const menuSnap = await getDocs(collection(db,'menu'));
+    if(!menuSnap.empty){
+      MENU = [];
+      menuSnap.forEach(d=>{ MENU.push({...d.data(), id: parseInt(d.id)||d.data().id}); });
+      MENU.sort((a,b)=> (a.id||0)-(b.id||0));
+    } else {
+      await fbSaveMenu();
+    }
+    setLoadingProgress(65);
+
+    /* 6 — الموظفون */
+    const empSnap = await getDocs(collection(db,'employees'));
+    if(!empSnap.empty){
+      EMPLOYEES = [];
+      empSnap.forEach(d=>{ EMPLOYEES.push({...d.data(), id: parseInt(d.id)||d.data().id}); });
+      EMPLOYEES.sort((a,b)=>(a.id||0)-(b.id||0));
+    } else {
+      for(const e of EMPLOYEES) await fbSaveEmployee(e);
+    }
+    setLoadingProgress(80);
+
+    /* 7 — الطلبيات */
+    const ordSnap = await getDocs(query(collection(db,'orders'), orderBy('num','desc')));
+    ORDERS = [];
+    ordSnap.forEach(d=>{ ORDERS.push(d.data()); });
+    if(ORDERS.length) orderCounter = Math.max(...ORDERS.map(o=>o.num||0));
+    setLoadingProgress(90);
+
+    /* 8 — الشكاوى */
+    const cpSnap = await getDocs(query(collection(db,'complaints'), orderBy('num','desc')));
+    COMPLAINTS = [];
+    cpSnap.forEach(d=>{ COMPLAINTS.push(d.data()); });
+    if(COMPLAINTS.length) complaintCounter = Math.max(...COMPLAINTS.map(c=>c.num||0));
+    setLoadingProgress(100);
+
+    fbReady = true;
+    subscribeRealtime();
+
+  }catch(err){
+    console.error('fbLoadAll error:', err);
+    /* إذا فشل Firebase نكمل بالـ localStorage كـ fallback */
+    loadArchiveFallback();
+  }
+
+  /* تهيئة الواجهة بعد التحميل */
+  postLoadInit();
+  setTimeout(hideLoading, 600);
+}
+
+/* ════════ REALTIME: الاستماع للتغييرات من أجهزة أخرى ════════ */
+let unsubOrders = null;
+let unsubComplaints = null;
+
+function subscribeRealtime(){
+  if(!fbReady) return;
+  const {db, collection, query, orderBy, onSnapshot} = window.__fb;
+
+  /* طلبيات — تحديث فوري لجميع الأجهزة */
+  unsubOrders = onSnapshot(
+    query(collection(db,'orders'), orderBy('num','desc')),
+    (snap) => {
+      ORDERS = [];
+      snap.forEach(d=>{ ORDERS.push(d.data()); });
+      if(ORDERS.length) orderCounter = Math.max(...ORDERS.map(o=>o.num||0));
+      /* إعادة رسم ما هو ظاهر حالياً */
+      if(currentMode === 'owner')    renderOrderFeedInto('orderFeedOwner');
+      if(currentMode === 'employee') renderOrderFeedInto('orderFeedEmployee');
       renderStatGrid();
+      /* تنبيه صوتي إذا وصل طلب جديد */
+      if(currentMode === 'owner' || currentMode === 'employee') playAlertSound();
     },
-    err => console.warn('[تموز] orders listener:', err.message)
+    (err) => console.warn('orders snapshot error:', err)
+  );
+
+  /* شكاوى */
+  unsubComplaints = onSnapshot(
+    query(collection(db,'complaints'), orderBy('num','desc')),
+    (snap) => {
+      COMPLAINTS = [];
+      snap.forEach(d=>{ COMPLAINTS.push(d.data()); });
+      if(COMPLAINTS.length) complaintCounter = Math.max(...COMPLAINTS.map(c=>c.num||0));
+    },
+    (err) => console.warn('complaints snapshot error:', err)
   );
 }
 
-const ARCHIVE_KEY = 'tamoozArchive_v2';
-function saveArchive(){
+/* ════════ FALLBACK: localStorage عند انقطاع الشبكة ════════ */
+const ARCHIVE_KEY = 'tamoozSystemArchive_v1';
+function fallbackSave(){
   try{
-    const snapshot = {SETTINGS, EMPLOYEES, FEATURES, THEME, MENU:menuForFirestore(), orderCounter, complaintCounter, DEV_PASSWORD};
-    localStorage.setItem(ARCHIVE_KEY, JSON.stringify(snapshot));
+    localStorage.setItem(ARCHIVE_KEY, JSON.stringify({ORDERS, COMPLAINTS, orderCounter, complaintCounter}));
   }catch(e){}
 }
-function loadArchive(){
+function loadArchiveFallback(){
   try{
     const raw = localStorage.getItem(ARCHIVE_KEY);
     if (!raw) return;
-    const d = JSON.parse(raw);
-    if (d.settings)  Object.assign(SETTINGS, d.settings);
-    if (d.SETTINGS)  Object.assign(SETTINGS, d.SETTINGS);
-    if (d.menu)      MENU = d.menu.map(m=>({...m,image:null}));
-    if (d.MENU)      MENU = d.MENU.map(m=>({...m,image:null}));
-    if (d.employees) EMPLOYEES = d.employees;
-    if (d.EMPLOYEES) EMPLOYEES = d.EMPLOYEES;
-    if (d.features)  Object.assign(FEATURES, d.features);
-    if (d.FEATURES)  Object.assign(FEATURES, d.FEATURES);
-    if (d.theme)     Object.assign(THEME, d.theme);
-    if (d.THEME)     Object.assign(THEME, d.THEME);
-    if (d.devPassword)  DEV_PASSWORD = d.devPassword;
-    if (d.DEV_PASSWORD) DEV_PASSWORD = d.DEV_PASSWORD;
-    if (typeof d.orderCounter    === 'number') orderCounter    = d.orderCounter;
-    if (typeof d.complaintCounter === 'number') complaintCounter = d.complaintCounter;
+    const data = JSON.parse(raw);
+    if (Array.isArray(data.ORDERS)) ORDERS = data.ORDERS;
+    if (Array.isArray(data.COMPLAINTS)) COMPLAINTS = data.COMPLAINTS;
+    if (typeof data.orderCounter === 'number') orderCounter = data.orderCounter;
+    if (typeof data.complaintCounter === 'number') complaintCounter = data.complaintCounter;
   }catch(e){}
 }
+
+/* الاسم القديم للتوافق مع أي كود يستدعيه */
+function saveArchive(){ fallbackSave(); }
+function loadArchive(){ /* لا شيء — يُحمَّل من Firebase */ }
 
 function applyBrandColor(key){
   const sw = SWATCHES.find(s=>s.key===key) || SWATCHES[0];
@@ -904,17 +1066,10 @@ function darkenHex(hex, percent){
   if (c.length === 3) c = c.split('').map(ch=>ch+ch).join('');
   const num = parseInt(c, 16);
   let r = (num>>16)&255, g=(num>>8)&255, b=num&255;
-  r = Math.min(255, Math.max(0, Math.round(r*(1-percent))));
-  g = Math.min(255, Math.max(0, Math.round(g*(1-percent))));
-  b = Math.min(255, Math.max(0, Math.round(b*(1-percent))));
+  r = Math.max(0, Math.round(r*(1-percent)));
+  g = Math.max(0, Math.round(g*(1-percent)));
+  b = Math.max(0, Math.round(b*(1-percent)));
   return '#' + [r,g,b].map(v=>v.toString(16).padStart(2,'0')).join('');
-}
-function hexToRgba(hex, alpha){
-  let c = hex.replace('#','');
-  if (c.length === 3) c = c.split('').map(ch=>ch+ch).join('');
-  const num = parseInt(c, 16);
-  const r = (num>>16)&255, g=(num>>8)&255, b=num&255;
-  return `rgba(${r},${g},${b},${alpha})`;
 }
 
 function applyCustomBrandColor(hex){
@@ -1213,15 +1368,14 @@ function submitOrder(){
   const order = {
     num: orderCounter,
     customerName: nameVal, customerPhone: phoneDigits, type: orderType, note,
-    time: nowStamp(), createdHour: new Date().getHours(), dateKey: todayKey(), statusIdx: 0, handledBy: null, receivedAt: null,
+    time: nowStamp(), createdHour: new Date().getHours(), dateKey: todayKey(), statusIdx: 0, handledBy: null,
     items: items.map(i=>({name:i.name, qty:i.qty, price:i.price})),
     subtotal, deliveryFee: fee, total: subtotal + fee
   };
   ORDERS.unshift(order);
   sessionOrderCount++;
-  fsSaveOrder(order);
-  fsSaveConfigDebounced();
-  saveArchive();
+  fbSaveOrder(order);
+  saveArchive(); /* fallback */
 
   playAlertSound();
   sendWhatsAppForOrder(order);
@@ -1274,7 +1428,7 @@ function orderCardHtml(order){
       <div class="order-meta">${order.customerName} · ${order.customerPhone||'-'} · ${order.type}</div>
       <div class="order-items">${itemsHtml}</div>
       ${order.note ? `<div class="order-note">📝 ${order.note}</div>` : ''}
-      ${order.handledBy ? `<div class="order-handled">✓ استلمه: ${order.handledBy}${order.receivedAt ? ' · '+order.receivedAt : ''}</div>` : ''}
+      ${order.handledBy ? `<div class="order-handled">✓ جهّزه: ${order.handledBy}</div>` : ''}
       <div class="order-bottom">
         <span class="status-badge status-${order.statusIdx}">${STATUS_LABELS[order.statusIdx]}</span>
         <span class="order-total">${fmt(order.total)}</span>
@@ -1297,8 +1451,8 @@ function renderOrderFeedInto(elId, ordersSubset){
       if (order && order.statusIdx < 3){
         order.statusIdx++;
         order.handledBy = currentActorName || order.handledBy;
-        if (!order.receivedAt) order.receivedAt = nowStamp();
-        fsSaveOrder(order);
+        fbUpdateOrderStatus(order);
+        saveArchive();
         renderOrderFeedInto(elId, ordersSubset);
         renderStatGrid();
         toast('✅ تم تحديث حالة الطلب');
@@ -1314,26 +1468,18 @@ function renderOrderFeedInto(elId, ordersSubset){
 function printOrderReceipt(num){
   const o = ORDERS.find(x=>x.num===num);
   if (!o) return;
-
-  // عند أول طباعة لهذا الطلب: سجّل من استلمه ومتى — حتى لو لم يحدّث حالته يدوياً بعد
-  if (!o.handledBy && currentActorName){ o.handledBy = currentActorName; }
-  if (!o.receivedAt){ o.receivedAt = nowStamp(); }
-  fsSaveOrder(o);
-  renderOrderFeedInto('orderFeedOwner');
-  renderOrderFeedInto('orderFeedEmployee');
-
   let html = `<div style="max-width:300px;margin:0 auto;font-family:Tajawal,sans-serif;font-size:13px;line-height:1.7;direction:rtl">`;
   html += `<div style="text-align:center;font-weight:800;font-size:17px">${SETTINGS.name}</div>`;
   if (SETTINGS.address) html += `<div style="text-align:center;font-size:11px">${SETTINGS.address}</div>`;
   html += `<div style="text-align:center;font-size:11px;margin-bottom:8px">واتساب: ${SETTINGS.wa}</div>`;
   html += `<div style="border-top:1px dashed #000;border-bottom:1px dashed #000;padding:6px 0;margin-bottom:6px">`;
-  html += `فاتورة طلب #${o.num}<br>وقت الطلب: ${o.time}<br>الزبون: ${o.customerName} — ${o.customerPhone||''}<br>النوع: ${o.type}`;
+  html += `فاتورة طلب #${o.num}<br>الوقت: ${o.time}<br>الزبون: ${o.customerName} — ${o.customerPhone||''}<br>النوع: ${o.type}`;
   html += `</div>`;
   o.items.forEach(i=>{ html += `<div style="display:flex;justify-content:space-between"><span>${i.name} ×${i.qty}</span><span>${fmt(i.price*i.qty)}</span></div>`; });
   if (o.deliveryFee>0) html += `<div style="display:flex;justify-content:space-between"><span>رسوم التوصيل</span><span>${fmt(o.deliveryFee)}</span></div>`;
   html += `<div style="border-top:1px dashed #000;margin-top:6px;padding-top:6px;display:flex;justify-content:space-between;font-weight:800"><span>الإجمالي</span><span>${fmt(o.total)}</span></div>`;
   if (o.note) html += `<div style="margin-top:6px;font-size:11px">ملاحظة: ${o.note}</div>`;
-  html += `<div style="border-top:1px dashed #000;margin-top:8px;padding-top:6px;font-size:11px">استلمه: <strong>${o.handledBy || '—'}</strong><br>وقت الاستلام: ${o.receivedAt || '—'}</div>`;
+  html += `<div style="margin-top:6px;font-size:11px">جهّزه: ${o.handledBy || '—'}</div>`;
   html += `<div style="text-align:center;margin-top:10px;font-size:11px">شكراً لطلبكم 🌴</div>`;
   html += `</div>`;
   document.getElementById('receiptArea').innerHTML = html;
@@ -1425,42 +1571,6 @@ function renderYearStats(){
 }
 
 /* ============================================================ OWNER: MENU EDITOR (incl. add / delete / image) ============================================================ */
-function renderCategoryManageList(){
-  const el = document.getElementById('categoryManageList');
-  const cats = getCats();
-  if (cats.length === 0){
-    el.innerHTML = `<p class="empty-note">لا توجد تصنيفات بعد</p>`;
-    return;
-  }
-  el.innerHTML = cats.map(c=>{
-    const n = MENU.filter(m=>m.cat===c).length;
-    return `
-      <div class="cat-row">
-        <span class="cat-row-icon">${catIcon(c)}</span>
-        <span class="cat-row-name">${c}</span>
-        <span class="cat-row-count">${n} عنصر</span>
-        <button class="del-btn" data-cat-del="${c}">🗑</button>
-      </div>`;
-  }).join('');
-  el.querySelectorAll('[data-cat-del]').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      const cat = btn.dataset.catDel;
-      const n = MENU.filter(m=>m.cat===cat).length;
-      if (!confirm(`سيُحذف تصنيف "${cat}" وكل عناصره (${n} عنصر) نهائياً. متابعة؟`)) return;
-      const deletedIds = MENU.filter(m=>m.cat===cat).map(m=>m.id);
-      MENU = MENU.filter(m=>m.cat!==cat);
-      deletedIds.forEach(id=>{ if (cart[id]) delete cart[id]; });
-      if (activeCat === cat){ const remaining = getCats(); activeCat = remaining[0] || ''; }
-      renderEditorList();
-      renderTabs();
-      renderMenu();
-      renderCartBar();
-      toast(`🗑 تم حذف تصنيف "${cat}" وكل عناصره`);
-      fsSaveConfigDebounced();
-    });
-  });
-}
-
 function editorRowHtml(item){
   return `
     <div class="editor-row">
@@ -1472,7 +1582,6 @@ function editorRowHtml(item){
     </div>`;
 }
 function renderEditorList(){
-  renderCategoryManageList();
   const el = document.getElementById('editorList');
   el.innerHTML = MENU.map(editorRowHtml).join('');
   el.querySelectorAll('[data-price]').forEach(inp=>{
@@ -1482,9 +1591,9 @@ function renderEditorList(){
       const item = MENU.find(m=>m.id===id);
       item.price = val;
       inp.value = val;
+      fbSaveMenuItemPatch(id, {price: val});
       renderMenu();
       toast('✅ تم حفظ السعر الجديد');
-      fsSaveConfigDebounced();
     });
   });
   el.querySelectorAll('[data-avail]').forEach(tg=>{
@@ -1494,10 +1603,10 @@ function renderEditorList(){
       item.available = !item.available;
       if (!item.available && cart[id]) delete cart[id];
       tg.classList.toggle('on', item.available);
+      fbSaveMenuItemPatch(id, {available: item.available});
       renderMenu();
       renderCartBar();
       toast(item.available ? `✅ ${item.name} متوفر الآن` : `🚫 ${item.name} غير متوفر اليوم`);
-      fsSaveConfigDebounced();
     });
   });
   el.querySelectorAll('[data-del]').forEach(btn=>{
@@ -1508,9 +1617,9 @@ function renderEditorList(){
       if (!confirm(`متأكد من حذف "${item.name}"؟ لا يمكن التراجع.`)) return;
       MENU = MENU.filter(m=>m.id!==id);
       if (cart[id]) delete cart[id];
+      fbDeleteMenuItem(id);
       renderEditorList(); renderMenu(); renderTabs(); renderCartBar();
       toast('🗑 تم حذف العنصر');
-      fsSaveConfigDebounced();
     });
   });
 }
@@ -1532,7 +1641,7 @@ function addItemFormHtml(){
     </div>`;
   return `
     <h3>إضافة ${t} جديد</h3>
-    <div class="field"><label>اسم ${t} *</label><input type="text" id="niName" placeholder="مثال: شاورما دجاج" /></div>
+    <div class="field"><label>اسم ${t} *</label><input type="text" id="niName" placeholder="مثال: ${bizType().item==='عقار'?'شقة طابقين في الحبوبي':'منتج جديد'}" /></div>
     <div class="field"><label>الوصف (اختياري)</label><textarea id="niDesc" rows="2" placeholder="وصف قصير وجذاب"></textarea></div>
     <div class="field"><label>السعر (د.ع) *</label><input type="number" id="niPrice" min="0" step="500" dir="ltr" style="text-align:left" /></div>
     <div class="field">
@@ -1586,184 +1695,162 @@ function submitNewItem(){
     return;
   }
   const newId = Math.max(0, ...MENU.map(m=>m.id)) + 1;
-  MENU.push({
+  const newItem = {
     id:newId, cat, name, price,
     emoji: pendingNewItemEmoji, image: pendingNewItemImage,
     desc, tags:[], available:true
-  });
+  };
+  MENU.push(newItem);
+  fbSaveMenuItemPatch(newId, newItem); /* setDoc عبر patch لأن المفتاح جديد */
   hideSheet();
   activeCat = cat;
-  renderTabs(); 
-  renderMenu(); 
-  renderEditorList();
+  renderTabs(); renderMenu(); renderEditorList();
   toast('✅ تمت إضافة الطبق بنجاح');
-  fsSaveConfigDebounced();
-  hideSheet();
 }
-
-// ربط آمن لزر إضافة المواد لمنع الانهيار البرمجي
-document.getElementById('addItemBtn')?.addEventListener('click', openAddItemForm);
+document.getElementById('addItemBtn').addEventListener('click', openAddItemForm);
 
 /* ============================================================ OWNER: SETTINGS ============================================================ */
 function renderBrandSwatches(){
   const el = document.getElementById('brandSwatchGrid');
-  if (!el) return;
   el.innerHTML = SWATCHES.map(s=>`<button type="button" class="brand-swatch ${s.key===SETTINGS.brandKey?'active':''}" data-key="${s.key}" style="background:${s.light}" title="${s.name}"></button>`).join('');
   el.querySelectorAll('.brand-swatch').forEach(btn=>{
     btn.addEventListener('click', ()=>{
       applyBrandColor(btn.dataset.key);
+      fbSaveSettings();
       el.querySelectorAll('.brand-swatch').forEach(b=>b.classList.toggle('active', b===btn));
-      toast('✅ تم تغيير لون العلامة التجارية');
-      fsSaveConfigDebounced();
+      toast('✅ تم تغيير لون العلامة');
     });
   });
 }
 
 function applyBizTypeToUI(){
-  const el = document.getElementById('heroEyebrow');
-  if (el) el.textContent = bizType().catalogSub;
+  document.getElementById('heroEyebrow').textContent = bizType().catalogSub;
 }
 
 function applyFeatures(){
-  const loyaltyBox = document.getElementById('loyaltyBox');
-  if (loyaltyBox) loyaltyBox.style.display = FEATURES.loyaltyCard ? '' : 'none';
-  
-  const openComplaintBtn = document.getElementById('openComplaintBtn');
-  if (openComplaintBtn) openComplaintBtn.style.display = FEATURES.complaints ? '' : 'none';
-  
-  const searchInput = document.getElementById('searchInput');
-  if (searchInput) {
-    const searchWrap = searchInput.closest('.searchbar');
-    if (searchWrap) searchWrap.style.display = FEATURES.search ? '' : 'none';
-  }
+  // وضع الزبون
+  document.getElementById('loyaltyBox').style.display = FEATURES.loyaltyCard ? '' : 'none';
+  document.getElementById('openComplaintBtn').style.display = FEATURES.complaints ? '' : 'none';
+  const searchWrap = document.getElementById('searchInput').closest('.searchbar');
+  if (searchWrap) searchWrap.style.display = FEATURES.search ? '' : 'none';
 
+  // تبويبات لوحة المالك
   const tabMap = {overview:'statistics', archive:'archive', employees:'employees'};
   document.querySelectorAll('.sub-tab').forEach(btn=>{
     const flagKey = tabMap[btn.dataset.panel];
     if (flagKey) btn.style.display = FEATURES[flagKey] ? '' : 'none';
   });
-  
+  // لو كان التبويب النشط مخفياً الآن، انتقل لتبويب الطلبيات (دائماً ظاهر)
   const activeTab = document.querySelector('.sub-tab.active');
   if (activeTab && activeTab.style.display === 'none'){
-    document.querySelector('[data-panel="orders"]')?.click();
+    document.querySelector('[data-panel="orders"]').click();
   }
 
-  const exportBtn = document.getElementById('exportBtn');
-  if (exportBtn) exportBtn.style.display = FEATURES.csvExport ? '' : 'none';
-  
-  const archiveExportBtn = document.getElementById('archiveExportBtn');
-  if (archiveExportBtn) archiveExportBtn.style.display = FEATURES.csvExport ? '' : 'none';
+  // أزرار التصدير
+  document.getElementById('exportBtn').style.display = FEATURES.csvExport ? '' : 'none';
+  document.getElementById('archiveExportBtn').style.display = FEATURES.csvExport ? '' : 'none';
 
-  const brandingSettingsBlock = document.getElementById('brandingSettingsBlock');
-  if (brandingSettingsBlock) brandingSettingsBlock.style.display = FEATURES.customBranding ? '' : 'none';
-  
-  const deliveryRulesBlock = document.getElementById('deliveryRulesBlock');
-  if (deliveryRulesBlock) deliveryRulesBlock.style.display = FEATURES.deliveryRules ? '' : 'none';
-  
-  const loyaltySettingsBlock = document.getElementById('loyaltySettingsBlock');
-  if (loyaltySettingsBlock) loyaltySettingsBlock.style.display = FEATURES.loyaltyCard ? '' : 'none';
+  // أقسام الإعدادات
+  document.getElementById('brandingSettingsBlock').style.display = FEATURES.customBranding ? '' : 'none';
+  document.getElementById('deliveryRulesBlock').style.display = FEATURES.deliveryRules ? '' : 'none';
+  document.getElementById('loyaltySettingsBlock').style.display = FEATURES.loyaltyCard ? '' : 'none';
 
   renderStatGrid();
   renderMenu();
 }
 
 function initSettingsForm(){
-  if (document.getElementById('setName')) document.getElementById('setName').value = SETTINGS.name;
-  if (document.getElementById('setTagline')) document.getElementById('setTagline').value = SETTINGS.tagline;
-  if (document.getElementById('setWa')) document.getElementById('setWa').value = SETTINGS.wa;
-  if (document.getElementById('setInsta')) document.getElementById('setInsta').value = SETTINGS.instagram;
-  if (document.getElementById('setFb')) document.getElementById('setFb').value = SETTINGS.facebook;
-  if (document.getElementById('setHours')) document.getElementById('setHours').value = SETTINGS.hours;
-  if (document.getElementById('setAddress')) document.getElementById('setAddress').value = SETTINGS.address;
-  if (document.getElementById('setMaps')) document.getElementById('setMaps').value = SETTINGS.mapsUrl;
-  if (document.getElementById('setMinOrder')) document.getElementById('setMinOrder').value = SETTINGS.minOrder;
-  if (document.getElementById('setDeliveryFee')) document.getElementById('setDeliveryFee').value = SETTINGS.deliveryFee;
-  if (document.getElementById('setLoyaltyN')) document.getElementById('setLoyaltyN').value = SETTINGS.loyaltyThreshold;
-  if (document.getElementById('setLoyaltyReward')) document.getElementById('setLoyaltyReward').value = SETTINGS.loyaltyReward;
-  if (document.getElementById('setPin')) document.getElementById('setPin').value = SETTINGS.pin;
-  
-  const soundToggle = document.getElementById('setSoundToggle');
-  if (soundToggle) soundToggle.classList.toggle('on', SETTINGS.soundEnabled);
-  
+  document.getElementById('setName').value = SETTINGS.name;
+  document.getElementById('setTagline').value = SETTINGS.tagline;
+  document.getElementById('setWa').value = SETTINGS.wa;
+  document.getElementById('setInsta').value = SETTINGS.instagram;
+  document.getElementById('setFb').value = SETTINGS.facebook;
+  document.getElementById('setHours').value = SETTINGS.hours;
+  document.getElementById('setAddress').value = SETTINGS.address;
+  document.getElementById('setMaps').value = SETTINGS.mapsUrl;
+  document.getElementById('setMinOrder').value = SETTINGS.minOrder;
+  document.getElementById('setDeliveryFee').value = SETTINGS.deliveryFee;
+  document.getElementById('setLoyaltyN').value = SETTINGS.loyaltyThreshold;
+  document.getElementById('setLoyaltyReward').value = SETTINGS.loyaltyReward;
+  document.getElementById('setPin').value = SETTINGS.pin;
+  document.getElementById('setSoundToggle').classList.toggle('on', SETTINGS.soundEnabled);
   if (SETTINGS.customHex){
-    const customColor = document.getElementById('setCustomColor');
-    if (customColor) customColor.value = SETTINGS.customHex;
-    const customColorHex = document.getElementById('customColorHex');
-    if (customColorHex) customColorHex.textContent = SETTINGS.customHex.toUpperCase();
+    document.getElementById('setCustomColor').value = SETTINGS.customHex;
+    document.getElementById('customColorHex').textContent = SETTINGS.customHex.toUpperCase();
   }
 
-  document.getElementById('setName')?.addEventListener('input', (e)=>{
-    SETTINGS.name = e.target.value || 'نظامك الرقمي';
-    const heroName = document.getElementById('heroName');
-    if (heroName) heroName.textContent = SETTINGS.name;
+  document.getElementById('setName').addEventListener('input', (e)=>{
+    SETTINGS.name = e.target.value || 'مطعمك';
+    document.getElementById('heroName').textContent = SETTINGS.name;
+    fbSaveSettings();
   });
-  document.getElementById('setTagline')?.addEventListener('input', (e)=>{
+  document.getElementById('setTagline').addEventListener('input', (e)=>{
     SETTINGS.tagline = e.target.value;
-    const heroTagline = document.getElementById('heroTagline');
-    if (heroTagline) heroTagline.textContent = SETTINGS.tagline;
+    document.getElementById('heroTagline').textContent = SETTINGS.tagline;
+    fbSaveSettings();
   });
-  document.getElementById('setWa')?.addEventListener('input', (e)=>{ SETTINGS.wa = e.target.value.replace(/[^0-9]/g,''); fsSaveConfigDebounced(); });
-  document.getElementById('setInsta')?.addEventListener('input', (e)=>{ SETTINGS.instagram = e.target.value; fsSaveConfigDebounced(); });
-  document.getElementById('setFb')?.addEventListener('input', (e)=>{ SETTINGS.facebook = e.target.value; fsSaveConfigDebounced(); });
-  document.getElementById('setHours')?.addEventListener('input', (e)=>{ SETTINGS.hours = e.target.value; fsSaveConfigDebounced(); });
-  document.getElementById('setAddress')?.addEventListener('input', (e)=>{ SETTINGS.address = e.target.value; fsSaveConfigDebounced(); });
-  document.getElementById('setMaps')?.addEventListener('input', (e)=>{ SETTINGS.mapsUrl = e.target.value; fsSaveConfigDebounced(); });
-  document.getElementById('setMinOrder')?.addEventListener('input', (e)=>{ SETTINGS.minOrder = Math.max(0, parseInt(e.target.value)||0); fsSaveConfigDebounced(); });
-  document.getElementById('setDeliveryFee')?.addEventListener('input', (e)=>{ SETTINGS.deliveryFee = Math.max(0, parseInt(e.target.value)||0); fsSaveConfigDebounced(); });
-  document.getElementById('setLoyaltyN')?.addEventListener('input', (e)=>{
+  document.getElementById('setWa').addEventListener('input', (e)=>{ SETTINGS.wa = e.target.value.replace(/[^0-9]/g,''); fbSaveSettings(); });
+  document.getElementById('setInsta').addEventListener('input', (e)=>{ SETTINGS.instagram = e.target.value; fbSaveSettings(); });
+  document.getElementById('setFb').addEventListener('input', (e)=>{ SETTINGS.facebook = e.target.value; fbSaveSettings(); });
+  document.getElementById('setHours').addEventListener('input', (e)=>{ SETTINGS.hours = e.target.value; fbSaveSettings(); });
+  document.getElementById('setAddress').addEventListener('input', (e)=>{ SETTINGS.address = e.target.value; fbSaveSettings(); });
+  document.getElementById('setMaps').addEventListener('input', (e)=>{ SETTINGS.mapsUrl = e.target.value; fbSaveSettings(); });
+  document.getElementById('setMinOrder').addEventListener('input', (e)=>{ SETTINGS.minOrder = Math.max(0, parseInt(e.target.value)||0); fbSaveSettings(); });
+  document.getElementById('setDeliveryFee').addEventListener('input', (e)=>{ SETTINGS.deliveryFee = Math.max(0, parseInt(e.target.value)||0); fbSaveSettings(); });
+  document.getElementById('setLoyaltyN').addEventListener('input', (e)=>{
     SETTINGS.loyaltyThreshold = Math.max(1, parseInt(e.target.value)||5);
+    fbSaveSettings();
     renderLoyalty();
-    fsSaveConfigDebounced();
   });
-  document.getElementById('setLoyaltyReward')?.addEventListener('input', (e)=>{
+  document.getElementById('setLoyaltyReward').addEventListener('input', (e)=>{
     SETTINGS.loyaltyReward = e.target.value || 'هدية';
+    fbSaveSettings();
     renderLoyalty();
-    fsSaveConfigDebounced();
   });
-  document.getElementById('setPin')?.addEventListener('input', (e)=>{
+  document.getElementById('setPin').addEventListener('input', (e)=>{
     const val = e.target.value.trim();
-    if (val.length >= 4){ SETTINGS.pin = val; toast('✅ تم حفظ رمز المالك الجديد'); fsSaveConfigDebounced(); }
-  });
-  soundToggle?.addEventListener('click', ()=>{
-    SETTINGS.soundEnabled = !SETTINGS.soundEnabled;
-    soundToggle.classList.toggle('on', SETTINGS.soundEnabled);
-    fsSaveConfigDebounced();
-  });
-  document.getElementById('setCustomColor')?.addEventListener('input', (e)=>{
-    const hexLbl = document.getElementById('customColorHex');
-    if (hexLbl) hexLbl.textContent = e.target.value.toUpperCase();
-  });
-  document.getElementById('applyCustomColorBtn')?.addEventListener('click', ()=>{
-    const customColor = document.getElementById('setCustomColor');
-    if (customColor) {
-      const hex = customColor.value;
-      applyCustomBrandColor(hex);
-      document.querySelectorAll('.brand-swatch').forEach(b=>b.classList.remove('active'));
-      toast('✅ تم تطبيق اللون المخصص');
-      fsSaveConfigDebounced();
+    if (val.length >= 4){
+      SETTINGS.pin = val;
+      fbSaveSecurity();
+      toast('✅ تم حفظ كلمة مرور المالك');
     }
+  });
+  document.getElementById('setSoundToggle').addEventListener('click', ()=>{
+    SETTINGS.soundEnabled = !SETTINGS.soundEnabled;
+    document.getElementById('setSoundToggle').classList.toggle('on', SETTINGS.soundEnabled);
+    fbSaveSettings();
+  });
+  document.getElementById('setCustomColor').addEventListener('input', (e)=>{
+    document.getElementById('customColorHex').textContent = e.target.value.toUpperCase();
+  });
+  document.getElementById('applyCustomColorBtn').addEventListener('click', ()=>{
+    const hex = document.getElementById('setCustomColor').value;
+    applyCustomBrandColor(hex);
+    fbSaveSettings();
+    document.querySelectorAll('.brand-swatch').forEach(b=>b.classList.remove('active'));
+    toast('✅ تم تطبيق اللون الحر');
   });
 
   renderBrandSwatches();
 }
 
 function exportOrders(){
-  let csv = 'رقم الطلب,الاسم,الهاتف,نوع الطلب,الأصناف,ملاحظة,رسوم التوصيل,الإجمالي,الحالة,استلمه,وقت الاستلام,وقت الطلب\n';
+  let csv = 'رقم الطلب,الاسم,الهاتف,نوع الطلب,الأصناف,ملاحظة,رسوم التوصيل,الإجمالي,الحالة,جهّزه,الوقت\n';
   ORDERS.forEach(o=>{
     const itemsStr = o.items.map(i=>`${i.name} x${i.qty}`).join('; ');
-    csv += `${o.num},"${o.customerName}","${o.customerPhone||''}",${o.type},"${itemsStr}","${(o.note||'').replace(/"/g,'""')}",${o.deliveryFee||0},${o.total},${STATUS_LABELS[o.statusIdx]},${o.handledBy||''},${o.receivedAt||''},${o.time}\n`;
+    csv += `${o.num},${o.customerName},${o.customerPhone||''},${o.type},"${itemsStr}",${o.note||''},${o.deliveryFee||0},${o.total},${STATUS_LABELS[o.statusIdx]},${o.handledBy||''},${o.time}\n`;
   });
   const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8;'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url; a.download = 'سجل-الطلبيات-' + SETTINGS.name + '.csv';
+  a.href = url; a.download = 'طلبيات-' + SETTINGS.name + '.csv';
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
   URL.revokeObjectURL(url);
-  toast('✅ تم تصدير ملف الطلبيات بنجاح');
+  toast('✅ تم تصدير الملف');
 }
-document.getElementById('exportBtn')?.addEventListener('click', exportOrders);
+document.getElementById('exportBtn').addEventListener('click', exportOrders);
 
-/* ============================================================ OWNER: ARCHIVE / DATABASE ============================================================ */
+/* ============================================================ OWNER: ARCHIVE / DATABASE (browse any past day) ============================================================ */
 let selectedArchiveDate = todayKey();
 
 function complaintCardHtml(c){
@@ -1779,12 +1866,11 @@ function complaintCardHtml(c){
 function renderArchive(){
   const dayOrders = ordersForDate(selectedArchiveDate);
   renderOrderFeedInto('archiveOrdersFeed', dayOrders);
-  const complaintsBlock = document.getElementById('archiveComplaintsBlock');
-  if (complaintsBlock) complaintsBlock.style.display = FEATURES.complaints ? '' : 'none';
+  document.getElementById('archiveComplaintsBlock').style.display = FEATURES.complaints ? '' : 'none';
   if (FEATURES.complaints){
     const dayComplaints = complaintsForDate(selectedArchiveDate);
     const cEl = document.getElementById('archiveComplaintsFeed');
-    if (cEl) cEl.innerHTML = dayComplaints.length ? dayComplaints.map(complaintCardHtml).join('') : `<p class="empty-note">لا توجد شكاوى مسجلة لهذا اليوم</p>`;
+    cEl.innerHTML = dayComplaints.length ? dayComplaints.map(complaintCardHtml).join('') : `<p class="empty-note">لا توجد شكاوى في هذا اليوم</p>`;
   }
 }
 
@@ -1792,17 +1878,17 @@ function exportDayData(dateKey){
   const dayOrders = ordersForDate(dateKey);
   const dayComplaints = complaintsForDate(dateKey);
   if (dayOrders.length === 0 && dayComplaints.length === 0){
-    toast('⚠ لا توجد بيانات محفوظة في هذا اليوم لتحميلها');
+    toast('⚠ لا توجد بيانات في هذا اليوم لتحميلها');
     return;
   }
-  let csv = 'النوع,الرقم,الاسم,الهاتف,التفاصيل,المبلغ,الحالة,استلمه,وقت الاستلام,الوقت\n';
+  let csv = 'النوع,الرقم,الاسم,الهاتف,التفاصيل,المبلغ,الحالة,جهّزه,الوقت\n';
   dayOrders.forEach(o=>{
     const itemsStr = o.items.map(i=>`${i.name} x${i.qty}`).join('; ');
-    csv += `طلب,${o.num},"${o.customerName}","${o.customerPhone||''}","${itemsStr}",${o.total},${STATUS_LABELS[o.statusIdx]},${o.handledBy||''},${o.receivedAt||''},${o.time}\n`;
+    csv += `طلب,${o.num},${o.customerName},${o.customerPhone||''},"${itemsStr}",${o.total},${STATUS_LABELS[o.statusIdx]},${o.handledBy||''},${o.time}\n`;
   });
   dayComplaints.forEach(c=>{
     const safeMsg = (c.message||'').replace(/"/g,'""');
-    csv += `شكوى,${c.num},"${c.customerName}","${c.customerPhone||''}","${safeMsg}",,${c.status},,,${c.time}\n`;
+    csv += `شكوى,${c.num},${c.customerName},${c.customerPhone||''},"${safeMsg}",,${c.status},,${c.time}\n`;
   });
   const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8;'});
   const url = URL.createObjectURL(blob);
@@ -1810,32 +1896,30 @@ function exportDayData(dateKey){
   a.href = url; a.download = `بيانات-${dateKey}-${SETTINGS.name}.csv`;
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
   URL.revokeObjectURL(url);
-  toast('✅ تم تصدير بيانات اليوم المحدد');
+  toast('✅ تم تحميل بيانات اليوم المحدد');
 }
 
-document.getElementById('archiveDateInput')?.addEventListener('change', (e)=>{
+document.getElementById('archiveDateInput').addEventListener('change', (e)=>{
   selectedArchiveDate = e.target.value || todayKey();
   renderArchive();
 });
-document.getElementById('archiveTodayBtn')?.addEventListener('click', ()=>{
+document.getElementById('archiveTodayBtn').addEventListener('click', ()=>{
   selectedArchiveDate = todayKey();
-  const archiveInput = document.getElementById('archiveDateInput');
-  if (archiveInput) archiveInput.value = selectedArchiveDate;
+  document.getElementById('archiveDateInput').value = selectedArchiveDate;
   renderArchive();
 });
-document.getElementById('archiveExportBtn')?.addEventListener('click', ()=> exportDayData(selectedArchiveDate));
+document.getElementById('archiveExportBtn').addEventListener('click', ()=> exportDayData(selectedArchiveDate));
 
-document.getElementById('statsDateInput')?.addEventListener('change', (e)=>{
+document.getElementById('statsDateInput').addEventListener('change', (e)=>{
   selectedStatsDate = e.target.value || todayKey();
   renderStatGrid();
 });
-document.getElementById('statsTodayBtn')?.addEventListener('click', ()=>{
+document.getElementById('statsTodayBtn').addEventListener('click', ()=>{
   selectedStatsDate = todayKey();
-  const statsInput = document.getElementById('statsDateInput');
-  if (statsInput) statsInput.value = selectedStatsDate;
+  document.getElementById('statsDateInput').value = selectedStatsDate;
   renderStatGrid();
 });
-document.getElementById('statsYearSelect')?.addEventListener('change', (e)=>{
+document.getElementById('statsYearSelect').addEventListener('change', (e)=>{
   selectedStatsYear = e.target.value;
   renderYearStats();
 });
@@ -1843,37 +1927,28 @@ document.getElementById('statsYearSelect')?.addEventListener('change', (e)=>{
 /* ============================================================ CUSTOMER: COMPLAINTS / FEEDBACK ============================================================ */
 function complaintFormHtml(){
   return `
-    <h3>إرسال شكوى أو ملاحظة</h3>
-    <p class="pin-sub">تصل ملاحظتك مباشرة إلى المالك وتضمن سرية وهويّة العميل</p>
-    <div class="field"><label>الاسم (اختياري)</label><input type="text" id="cpName" placeholder="مثال: زبون" /></div>
-    <div class="field"><label>رقم الهاتف (اختياري)</label><input type="text" id="cpPhone" dir="ltr" style="text-align:left" inputmode="numeric" /></div>
-    <div class="field"><label>تفاصيل الملاحظة أو الشكوى *</label><textarea id="cpMsg" rows="4" placeholder="اكتب شكواك هنا..."></textarea></div>
+    <h3>شكوى أو ملاحظة</h3>
+    <p class="pin-sub">رأيك يهمنا ويصل مباشرة لإدارة المحل عبر واتساب</p>
+    <div class="field"><label>اسمك (اختياري)</label><input type="text" id="cpName" placeholder="مثال: أحمد" /></div>
+    <div class="field"><label>رقم هاتفك (اختياري — لو تريد رداً)</label><input type="text" id="cpPhone" dir="ltr" style="text-align:left" inputmode="numeric" /></div>
+    <div class="field"><label>اكتب شكواك أو ملاحظتك *</label><textarea id="cpMsg" rows="4" placeholder="اكتب هنا..."></textarea></div>
     <p class="field-error" id="cpError"></p>
     <button class="send-btn" id="cpSubmitBtn">
-      إرسال الشكوى فوراً
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4c-.3-.1-1.7-.8-2-.9-.3-.1-.5-.1-.7.1-.2.3-.7.9-.9 1.1-.2.2-.3.2-.6.1-1.6-.8-2.6-1.4-3.7-3.2-.3-.5.3-.5.8-1.6.1-.2 0-.4-.1-.5-.1-.1-.6-1.5-.9-2-.2-.5-.4-.4-.7-.4-.2 0-.5 0-.7 0-.2 0-.6.1-.9.4-.3.3-1.2 1.1-1.2 2.7s1.2 3.2 1.4 3.4c.2.2 2.3 3.6 5.7 4.8 2.8 1 2.8.7 3.3.6.5-.1 1.7-.7 1.9-1.4.2-.7.2-1.3.2-1.4-.1-.1-.3-.2-.6-.4z"/><path d="M12 2a10 10 0 0 0-8.5 15.3L2 22l4.8-1.4A10 10 0 1 0 12 2zm0 18.2c-1.6 0-3.1-.4-4.4-1.2l-.3-.2-3.3 1 1-3.2-.2-.3A8.2 8.2 0 1 1 12 20.2z"/></svg>
+      إرسال الشكوى
     </button>
   `;
 }
 function openComplaintForm(){
   showSheet(complaintFormHtml(), ()=>{
-    document.getElementById('cpSubmitBtn')?.addEventListener('click', submitComplaint);
+    document.getElementById('cpSubmitBtn').addEventListener('click', submitComplaint);
   });
 }
 function submitComplaint(){
-  const msgEl = document.getElementById('cpMsg');
-  if (!msgEl) return;
-  const msg = msgEl.value.trim();
-  if (!msg){ 
-    const errEl = document.getElementById('cpError');
-    if (errEl) errEl.textContent = 'اكتب شكواك أو ملاحظتك أولاً'; 
-    return; 
-  }
-  const name = document.getElementById('cpName')?.value.trim() || 'زبون لم يذكر اسمه';
-  let phone = document.getElementById('cpPhone')?.value.replace(/[^0-9]/g,'') || '';
-  
-  if (phone.startsWith('07')) {
-    phone = '964' + phone.substring(1);
-  }
+  const msg = document.getElementById('cpMsg').value.trim();
+  if (!msg){ document.getElementById('cpError').textContent = 'اكتب شكواك أو ملاحظتك أولاً'; return; }
+  const name = document.getElementById('cpName').value.trim() || 'زبون لم يذكر اسمه';
+  const phone = document.getElementById('cpPhone').value.replace(/[^0-9]/g,'');
 
   complaintCounter++;
   const complaint = {
@@ -1881,20 +1956,19 @@ function submitComplaint(){
     time: nowStamp(), createdHour: new Date().getHours(), dateKey: todayKey(), status: 'جديدة'
   };
   COMPLAINTS.unshift(complaint);
-  fsSaveComplaint(complaint);
-  fsSaveConfigDebounced();
+  fbSaveComplaint(complaint);
   saveArchive();
   sendComplaintToWhatsApp(complaint);
   hideSheet();
   toast('✅ تم إرسال شكواك، شكراً لك');
 }
 function sendComplaintToWhatsApp(c){
-  let msg = `📢 شكوى/ملاحظة جديدة من نظام: ${SETTINGS.name}\n\n👤 العميل: ${c.customerName}`;
-  if (c.customerPhone) msg += `\n📞 الهاتف: ${c.customerPhone}`;
-  msg += `\n\n📝 تفاصيل الشكوى:\n${c.message}`;
+  let msg = `📢 شكوى/ملاحظة جديدة من زبون — ${SETTINGS.name}\n\n👤 ${c.customerName}`;
+  if (c.customerPhone) msg += `\n📞 ${c.customerPhone}`;
+  msg += `\n\n📝 ${c.message}`;
   window.open(`https://wa.me/${SETTINGS.wa}?text=${encodeURIComponent(msg)}`, '_blank');
 }
-document.getElementById('openComplaintBtn')?.addEventListener('click', openComplaintForm);
+document.getElementById('openComplaintBtn').addEventListener('click', openComplaintForm);
 
 /* ============================================================ OWNER SUBNAV ============================================================ */
 document.querySelectorAll('.sub-tab').forEach(btn=>{
@@ -1916,28 +1990,22 @@ function setMode(mode){
   currentMode = mode;
   const isDark = (mode === 'owner' || mode === 'employee' || mode === 'developer');
   document.body.classList.toggle('mode-dark', isDark);
-  document.getElementById('view-customer')?.classList.toggle('active', mode === 'customer');
-  document.getElementById('view-employee')?.classList.toggle('active', mode === 'employee');
-  document.getElementById('view-owner')?.classList.toggle('active', mode === 'owner');
-  document.getElementById('view-developer')?.classList.toggle('active', mode === 'developer');
+  document.getElementById('view-customer').classList.toggle('active', mode === 'customer');
+  document.getElementById('view-employee').classList.toggle('active', mode === 'employee');
+  document.getElementById('view-owner').classList.toggle('active', mode === 'owner');
+  document.getElementById('view-developer').classList.toggle('active', mode === 'developer');
 
-  const accessBtn = document.getElementById('ownerAccessBtn');
-  if (accessBtn) accessBtn.style.display = mode === 'customer' ? '' : 'none';
-  
-  const exitBtn = document.getElementById('exitBtn');
-  if (exitBtn) exitBtn.style.display = mode === 'customer' ? 'none' : '';
+  document.getElementById('ownerAccessBtn').style.display = mode === 'customer' ? '' : 'none';
+  document.getElementById('exitBtn').style.display = mode === 'customer' ? 'none' : '';
 
   const sub = document.getElementById('brandSub');
-  if (sub) {
-    if (mode === 'customer') sub.textContent = 'القائمة الذكية';
-    else if (mode === 'employee') sub.textContent = 'وضع الموظف — ' + (currentActorName||'');
-    else if (mode === 'owner') sub.textContent = 'وضع المالك';
-    else if (mode === 'developer') sub.textContent = 'وضع المطوّر المتقدم';
-  }
+  if (mode === 'customer') sub.textContent = 'القائمة الذكية';
+  else if (mode === 'employee') sub.textContent = 'وضع الموظف — ' + (currentActorName||'');
+  else if (mode === 'owner') sub.textContent = 'وضع المالك';
+  else if (mode === 'developer') sub.textContent = 'وضع المطوّر';
 
   if (mode === 'employee'){
-    const empWelcome = document.getElementById('empWelcome');
-    if (empWelcome) empWelcome.textContent = 'أهلاً ' + (currentActorName||'');
+    document.getElementById('empWelcome').textContent = 'أهلاً ' + (currentActorName||'');
     renderOrderFeedInto('orderFeedEmployee');
   }
   if (mode === 'owner'){ applyFeatures(); renderOrderFeedInto('orderFeedOwner'); }
@@ -1945,37 +2013,38 @@ function setMode(mode){
     renderDevEmployeeResetList();
     renderDevDesignControls();
     renderDevFeatureToggles();
-    if (document.getElementById('devNewOwnerPin')) document.getElementById('devNewOwnerPin').value='';
-    if (document.getElementById('devNewDevPw')) document.getElementById('devNewDevPw').value='';
+    document.getElementById('devNewOwnerPin').value='';
+    document.getElementById('devNewDevPw').value='';
   }
   if (mode === 'customer'){ currentActorName = null; }
 }
-document.getElementById('exitBtn')?.addEventListener('click', ()=> setMode('customer'));
+document.getElementById('exitBtn').addEventListener('click', ()=> setMode('customer'));
 
+/* ---- role choice sheet (visible entry point — customer-facing button) ---- */
 function roleChoiceHtml(){
   return `
-    <h3>الدخول للوحة التحكم</h3>
-    <p class="pin-sub">اختر دورك الوظيفي للمتابعة</p>
+    <h3>الدخول للوحة العمل</h3>
+    <p class="pin-sub">اختر صفتك</p>
     <div class="role-choice">
       <button class="role-btn" id="chooseEmployee">
         <span class="ricon">👨‍🍳</span>
-        <span class="rtext"><strong>أنا موظف</strong><span>إدارة الطلبيات النشطة وتجهيزها</span></span>
+        <span class="rtext"><strong>أنا موظف</strong><span>تجهيز الطلبيات وتحديث حالتها</span></span>
       </button>
       <button class="role-btn" id="chooseOwner">
         <span class="ricon">🔑</span>
-        <span class="rtext"><strong>أنا المالك</strong><span>إدارة كاملة للمحل، الأسعار، التقارير</span></span>
+        <span class="rtext"><strong>أنا المالك</strong><span>كل الصلاحيات — أسعار، قائمة، إعدادات</span></span>
       </button>
     </div>`;
 }
 function openRoleChoice(){
   showSheet(roleChoiceHtml(), ()=>{
-    document.getElementById('chooseEmployee')?.addEventListener('click', openEmployeeSelect);
-    document.getElementById('chooseOwner')?.addEventListener('click', openOwnerPinPad);
+    document.getElementById('chooseEmployee').addEventListener('click', openEmployeeSelect);
+    document.getElementById('chooseOwner').addEventListener('click', openOwnerPinPad);
   });
 }
-document.getElementById('ownerAccessBtn')?.addEventListener('click', openRoleChoice);
+document.getElementById('ownerAccessBtn').addEventListener('click', openRoleChoice);
 
-/* ============================================================ PASSWORD PROMPT ============================================================ */
+/* ============================================================ PASSWORD PROMPT (reused for owner / employee / developer — open text, not digits-only) ============================================================ */
 let activePwValidate = null;
 let activePwOnSuccess = null;
 
@@ -1992,7 +2061,7 @@ function passwordPromptHtml(title, sub){
         </div>
       </div>
       <p class="field-error" id="pwError"></p>
-      <button class="send-btn" id="pwSubmitBtn" style="background:linear-gradient(135deg,var(--c-saffron),var(--c-saffron-deep))">تأكيد الدخول</button>
+      <button class="send-btn" id="pwSubmitBtn" style="background:linear-gradient(135deg,var(--c-saffron),var(--c-saffron-deep))">دخول</button>
     </div>`;
 }
 function openPasswordPrompt(title, sub, validateFn, onSuccess){
@@ -2000,55 +2069,54 @@ function openPasswordPrompt(title, sub, validateFn, onSuccess){
   activePwOnSuccess = onSuccess;
   showSheet(passwordPromptHtml(title, sub), ()=>{
     const input = document.getElementById('pwInput');
-    if (input) setTimeout(()=> input.focus(), 50);
-    document.getElementById('pwToggle')?.addEventListener('click', ()=>{
-      if (input) input.type = input.type === 'password' ? 'text' : 'password';
+    setTimeout(()=> input.focus(), 50);
+    document.getElementById('pwToggle').addEventListener('click', ()=>{
+      input.type = input.type === 'password' ? 'text' : 'password';
     });
     function trySubmit(){
-      if (!input) return;
       const val = input.value;
       if (val !== '' && activePwValidate(val)){
         hideSheet();
         activePwOnSuccess();
       } else {
-        const errEl = document.getElementById('pwError');
-        if (errEl) errEl.textContent = 'كلمة مرور خاطئة، يرجى المحاولة ثانية';
+        document.getElementById('pwError').textContent = 'كلمة مرور خاطئة، حاول مرة أخرى';
         input.value = '';
         input.focus();
       }
     }
-    document.getElementById('pwSubmitBtn')?.addEventListener('click', trySubmit);
-    input?.addEventListener('keydown', (e)=>{ if (e.key === 'Enter') trySubmit(); });
+    document.getElementById('pwSubmitBtn').addEventListener('click', trySubmit);
+    input.addEventListener('keydown', (e)=>{ if (e.key === 'Enter') trySubmit(); });
   });
 }
 
 function openOwnerPinPad(){
-  openPasswordPrompt('لوحة التحكم للمالك', 'الرجاء إدخال رمز المالك الخاص بك',
+  openPasswordPrompt('دخول لوحة المالك', 'هذه الشاشة للمالك فقط',
     (val) => val === SETTINGS.pin,
     () => { currentActorName = 'المالك'; setMode('owner'); }
   );
 }
 function openDevPinPad(){
-  openPasswordPrompt('وضع المطور والمشرف', 'صلاحيات تعديل بنية النظام الأساسية',
+  openPasswordPrompt('وضع المطوّر', 'هذه الشاشة لمطوّر النظام فقط',
     (val) => val === DEV_PASSWORD,
     () => { currentActorName = 'المطوّر'; setMode('developer'); }
   );
 }
-document.getElementById('devModeBtn')?.addEventListener('click', openDevPinPad);
+document.getElementById('devModeBtn').addEventListener('click', openDevPinPad);
 
+/* ---- employee login: pick name from owner-registered list, then enter individual password ---- */
 function employeeSelectHtml(){
   const active = EMPLOYEES.filter(e=>e.active);
   if (active.length === 0){
-    return `<h3>دخول الموظفين</h3><p class="pin-sub">لا توجد حسابات موظفين نشطة. اطلب من المالك إضافتك من قسم "الموظفون"</p>`;
+    return `<h3>دخول الموظف</h3><p class="pin-sub">لا يوجد أي موظف مُسجَّل بعد — اطلب من المالك إضافتك أولاً من تبويب "الموظفون"</p>`;
   }
   return `
-    <h3>اختيار الحساب</h3>
-    <p class="pin-sub">اختر اسمك لإدخال رمز المرور الفردي</p>
+    <h3>من أنت؟</h3>
+    <p class="pin-sub">اختر اسمك من القائمة — لا يمكن كتابة اسم غير مسجَّل</p>
     <div class="role-choice">
       ${active.map(e => `
         <button class="role-btn" data-emp="${e.id}">
           <span class="ricon">👤</span>
-          <span class="rtext"><strong>${e.name}</strong><span>تسجيل دخول للعمل</span></span>
+          <span class="rtext"><strong>${e.name}</strong><span>اضغط لإدخال كلمة المرور</span></span>
         </button>`).join('')}
     </div>`;
 }
@@ -2063,91 +2131,55 @@ function openEmployeeSelect(){
   });
 }
 function openEmployeePasswordPad(employee){
-  openPasswordPrompt(`دخول الحساب: ${employee.name}`, 'أدخل رمز المرور السري المكون من 4 أرقام',
+  openPasswordPrompt(`دخول ${employee.name}`, 'أدخل كلمة المرور الخاصة بك',
     (val) => val === employee.password,
     () => {
       currentActorName = employee.name;
       employee.lastLogin = nowStamp();
+      fbSaveEmployee(employee);
       setMode('employee');
     }
   );
 }
 
 /* ============================================================ DEVELOPER MODE ACTIONS ============================================================ */
+
+/* ---- theme engine: applies font + corner-shape choices system-wide via CSS variables ---- */
 function applyTheme(){
   const bf = FONT_OPTIONS[THEME.bodyFont] || FONT_OPTIONS.tajawal;
   const df = DISPLAY_FONT_OPTIONS[THEME.displayFont] || DISPLAY_FONT_OPTIONS.lalezar;
+  const r = RADIUS_PRESETS[THEME.radius] || RADIUS_PRESETS.rounded;
   const root = document.documentElement.style;
   root.setProperty('--font-body', bf.stack);
   root.setProperty('--font-display', df.stack);
-  root.setProperty('--radius-lg', THEME.radiusLg + 'px');
-  root.setProperty('--radius-md', THEME.radiusMd + 'px');
-  root.setProperty('--radius-sm', THEME.radiusSm + 'px');
-  root.setProperty('--c-bg', THEME.bgColor);
-  root.setProperty('--c-panel', THEME.panelColor);
-  root.setProperty('--c-panel-2', THEME.panel2Color);
-  root.setProperty('--c-ink', THEME.inkColor);
-  root.setProperty('--c-ink-soft', darkenHex(THEME.inkColor, -0.15));
-  root.setProperty('--c-line', hexToRgba(THEME.inkColor, 0.14));
-  root.setProperty('--c-muted', hexToRgba(THEME.inkColor, 0.62));
+  root.setProperty('--radius-lg', r.lg);
+  root.setProperty('--radius-md', r.md);
+  root.setProperty('--radius-sm', r.sm);
 }
 
 function renderDevDesignControls(){
   const bodySel = document.getElementById('devBodyFont');
-  if (bodySel) {
-    bodySel.innerHTML = Object.entries(FONT_OPTIONS).map(([k,v])=>`<option value="${k}" ${k===THEME.bodyFont?'selected':''}>${v.name}</option>`).join('');
-    bodySel.onchange = (e)=>{ THEME.bodyFont = e.target.value; applyTheme(); toast('✅ تم تحديث خط النصوص'); fsSaveConfigDebounced(); };
-  }
+  bodySel.innerHTML = Object.entries(FONT_OPTIONS).map(([k,v])=>`<option value="${k}" ${k===THEME.bodyFont?'selected':''}>${v.name}</option>`).join('');
   const displaySel = document.getElementById('devDisplayFont');
-  if (displaySel) {
-    displaySel.innerHTML = Object.entries(DISPLAY_FONT_OPTIONS).map(([k,v])=>`<option value="${k}" ${k===THEME.displayFont?'selected':''}>${v.name}</option>`).join('');
-    displaySel.onchange = (e)=>{ THEME.displayFont = e.target.value; applyTheme(); toast('✅ تم تحديث خط العناوين'); fsSaveConfigDebounced(); };
-  }
+  displaySel.innerHTML = Object.entries(DISPLAY_FONT_OPTIONS).map(([k,v])=>`<option value="${k}" ${k===THEME.displayFont?'selected':''}>${v.name}</option>`).join('');
 
-  const colorFields = [
-    ['devBgColor','bgColor','تم تحديث خلفية التطبيق'],
-    ['devPanelColor','panelColor','تم تحديث ألوان الألواح'],
-    ['devPanel2Color','panel2Color','تم تحديث الألوان الثانوية'],
-    ['devInkColor','inkColor','تم تحديث لون النصوص'],
-  ];
-  colorFields.forEach(([elId, themeKey, msg])=>{
-    const el = document.getElementById(elId);
-    if (el) {
-      el.value = THEME[themeKey];
-      el.oninput = (e)=>{ THEME[themeKey] = e.target.value; applyTheme(); };
-      el.onchange = ()=>{ toast('✅ ' + msg); fsSaveConfigDebounced(); };
-    }
-  });
+  bodySel.onchange = (e)=>{ THEME.bodyFont = e.target.value; applyTheme(); fbSaveTheme(); toast('✅ تم تغيير خط النصوص'); };
+  displaySel.onchange = (e)=>{ THEME.displayFont = e.target.value; applyTheme(); fbSaveTheme(); toast('✅ تم تغيير خط العناوين'); };
 
-  const radiusFields = [['devRadiusLg','radiusLg'],['devRadiusMd','radiusMd'],['devRadiusSm','radiusSm']];
-  radiusFields.forEach(([elId, themeKey])=>{
-    const el = document.getElementById(elId);
-    if (el) {
-      el.value = THEME[themeKey];
-      el.oninput = (e)=>{
-        THEME[themeKey] = Math.min(60, Math.max(0, parseInt(e.target.value)||0));
-        applyTheme();
-      };
-      el.onchange = ()=>{ toast('✅ تم تعديل أقطار الحواف التكيفية'); fsSaveConfigDebounced(); };
-    }
-  });
-
-  const resetThemeBtn = document.getElementById('devResetThemeBtn');
-  if (resetThemeBtn) {
-    resetThemeBtn.onclick = ()=>{
-      if (!confirm('هل تود استعادة ثيم النظام والنقوش الافتراضية؟')) return;
-      THEME = JSON.parse(JSON.stringify(DEFAULT_THEME));
+  document.querySelectorAll('.radius-opt').forEach(btn=>{
+    btn.classList.toggle('active', btn.dataset.radius === THEME.radius);
+    btn.onclick = ()=>{
+      THEME.radius = btn.dataset.radius;
       applyTheme();
-      renderDevDesignControls();
-      toast('↺ تم تصفير وإرجاع المظهر القياسي');
-      fsSaveConfigDebounced();
+      fbSaveTheme();
+      document.querySelectorAll('.radius-opt').forEach(b=>b.classList.toggle('active', b===btn));
+      toast('✅ تم تغيير شكل الزوايا');
     };
-  }
+  });
 }
 
 function renderDevFeatureToggles(){
   const el = document.getElementById('devFeatureToggles');
-  if (!el) return;
   el.innerHTML = Object.entries(FEATURE_LABELS).map(([key,label])=>`
     <div class="dev-feature-row">
       <span>${label}</span>
@@ -2158,68 +2190,71 @@ function renderDevFeatureToggles(){
       const key = tg.dataset.feat;
       FEATURES[key] = !FEATURES[key];
       tg.classList.toggle('on', FEATURES[key]);
+      fbSaveFeatures();
       applyFeatures();
-      toast(FEATURES[key] ? `✅ تفعيل ميزة: ${FEATURE_LABELS[key]}` : `🚫 إيقاف ميزة: ${FEATURE_LABELS[key]}`);
-      fsSaveConfigDebounced();
+      toast(FEATURES[key] ? `✅ تم تفعيل: ${FEATURE_LABELS[key]}` : `🚫 تم إيقاف: ${FEATURE_LABELS[key]}`);
     });
   });
 }
 
 function renderDevEmployeeResetList(){
   const el = document.getElementById('devEmployeeResetList');
-  if (!el) return;
   el.innerHTML = EMPLOYEES.length ? EMPLOYEES.map(e => `
     <div class="editor-row">
-      <div class="editor-info"><div class="editor-name">${e.name}</div><div class="editor-cat">${e.active ? 'نشط' : 'معطل'} ${e.lastLogin ? '· دخول: ' + e.lastLogin : ''}</div></div>
-      <input type="text" class="dev-pw-input" data-dev-pw="${e.id}" placeholder="تغيير الرمز السري" />
-    </div>`).join('') : `<p class="empty-note">لا يوجد موظفون في قاعدة البيانات حالياً</p>`;
+      <div class="editor-info"><div class="editor-name">${e.name}</div><div class="editor-cat">${e.active ? 'نشط' : 'موقوف'} ${e.lastLogin ? '· آخر دخول ' + e.lastLogin : ''}</div></div>
+      <input type="text" class="dev-pw-input" data-dev-pw="${e.id}" placeholder="كلمة مرور جديدة" />
+    </div>`).join('') : `<p class="empty-note">لا يوجد موظفون بعد</p>`;
 
   el.querySelectorAll('[data-dev-pw]').forEach(inp=>{
     inp.addEventListener('change', ()=>{
       const id = parseInt(inp.dataset.devPw);
       const val = inp.value.trim();
       const emp = EMPLOYEES.find(x=>x.id===id);
-      if (!emp) return;
-      if (val.length < 4){ toast('⚠ يجب ألا يقل الرمز عن 4 أرقام'); inp.value=''; return; }
+      if (val.length < 4){ toast('⚠ كلمة المرور يجب أن تكون ٤ خانات على الأقل'); inp.value=''; return; }
       emp.password = val;
+      fbSaveEmployee(emp);
       inp.value = '';
-      toast(`✅ تم إجبار تعيين رمز الموظف ${emp.name}`);
-      fsSaveConfigDebounced();
+      toast(`✅ تم تغيير كلمة مرور ${emp.name}`);
     });
   });
 }
-document.getElementById('devSetOwnerPinBtn')?.addEventListener('click', ()=>{
-  const val = document.getElementById('devNewOwnerPin')?.value.trim() || '';
-  if (val.length < 4){ toast('⚠ الرمز السري للمالك يتطلب 4 خانات فأكثر'); return; }
+document.getElementById('devSetOwnerPinBtn').addEventListener('click', ()=>{
+  const val = document.getElementById('devNewOwnerPin').value.trim();
+  if (val.length < 4){ toast('⚠ كلمة المرور يجب أن تكون ٤ خانات على الأقل'); return; }
   SETTINGS.pin = val;
-  const ownerPinInput = document.getElementById('devNewOwnerPin');
-  if (ownerPinInput) ownerPinInput.value = '';
-  toast('✅ تم تحديث رمز دخول المالك الرئيسي');
-  fsSaveConfigDebounced();
+  fbSaveSecurity();
+  document.getElementById('devNewOwnerPin').value = '';
+  toast('✅ تم تغيير كلمة مرور دخول المالك');
 });
-document.getElementById('devSetDevPwBtn')?.addEventListener('click', ()=>{
-  const val = document.getElementById('devNewDevPw')?.value.trim() || '';
-  if (val.length < 4){ toast('⚠ الرمز يتطلب 4 خانات على الأقل'); return; }
+document.getElementById('devSetDevPwBtn').addEventListener('click', ()=>{
+  const val = document.getElementById('devNewDevPw').value.trim();
+  if (val.length < 4){ toast('⚠ كلمة المرور يجب أن تكون ٤ خانات على الأقل'); return; }
   DEV_PASSWORD = val;
-  const devPwInput = document.getElementById('devNewDevPw');
-  if (devPwInput) devPwInput.value = '';
-  toast('✅ تم تغيير كلمة مرور المطور بنجاح');
-  fsSaveConfig();
+  fbSaveSecurity();
+  document.getElementById('devNewDevPw').value = '';
+  toast('✅ تم تغيير كلمة مرور المطوّر — احفظها في مكان آمن');
 });
-document.getElementById('devCopySettingsBtn')?.addEventListener('click', ()=>{
-  const data = JSON.stringify({SETTINGS, EMPLOYEES, FEATURES, THEME, DEV_PASSWORD}, null, 2);
+document.getElementById('devCopySettingsBtn').addEventListener('click', ()=>{
+  const data = JSON.stringify({SETTINGS, EMPLOYEES}, null, 2);
   if (navigator.clipboard && navigator.clipboard.writeText){
-    navigator.clipboard.writeText(data).then(()=> toast('✅ تم نسخ البنية الـ JSON للحافظة')).catch(()=> toast('⚠ فشل النسخ التلقائي'));
+    navigator.clipboard.writeText(data).then(()=> toast('✅ تم نسخ الإعدادات')).catch(()=> toast('⚠ تعذّر النسخ التلقائي'));
   } else {
-    toast('⚠ متصفحك يمنع الوصول التلقائي للحافظة');
+    toast('⚠ النسخ التلقائي غير مدعوم في هذا المتصفح');
   }
 });
-document.getElementById('devWipeOrdersBtn')?.addEventListener('click', ()=>{
-  if (!confirm('أنت على وشك حذف وتصفير الطلبيات المخزنة كاش مؤقتاً داخل المتصفح. متابعة؟')) return;
+document.getElementById('devWipeOrdersBtn').addEventListener('click', ()=>{
+  if (!confirm('سيتم حذف كل الطلبيات نهائياً من Firebase. متابعة؟')) return;
+  /* حذف كل الطلبيات من Firestore */
+  if(fbReady){
+    const {db, collection, getDocs, deleteDoc} = window.__fb;
+    getDocs(collection(db,'orders')).then(snap=>{
+      snap.forEach(d=> deleteDoc(d.ref));
+    });
+  }
   ORDERS = [];
   sessionOrderCount = 0;
   renderStatGrid();
-  toast('✅ تم مسح ذاكرة الكاش للطلبيات');
+  toast('✅ تم تصفير كل الطلبيات');
 });
 
 /* ============================================================ OWNER: EMPLOYEE MANAGEMENT ============================================================ */
@@ -2229,7 +2264,7 @@ function employeeRowHtml(emp){
       <div class="editor-emoji">👤</div>
       <div class="editor-info">
         <div class="editor-name">${emp.name}</div>
-        <div class="editor-cat">${emp.lastLogin ? 'نشاط: ' + emp.lastLogin : 'لم يسجل دخول بعد'}</div>
+        <div class="editor-cat">${emp.lastLogin ? 'آخر دخول: ' + emp.lastLogin : 'لم يسجّل الدخول بعد'}</div>
       </div>
       <input type="text" class="dev-pw-input" data-emp-pw="${emp.id}" value="${emp.password}" />
       <div class="toggle ${emp.active?'on':''}" data-emp-active="${emp.id}"><div class="toggle-knob"></div></div>
@@ -2238,30 +2273,27 @@ function employeeRowHtml(emp){
 }
 function renderEmployeeList(){
   const el = document.getElementById('employeeList');
-  if (!el) return;
-  el.innerHTML = EMPLOYEES.length ? EMPLOYEES.map(employeeRowHtml).join('') : `<p class="empty-note">لا يوجد موظفون مضافون، انقر على زر الإضافة لتسجيل موظف</p>`;
+  el.innerHTML = EMPLOYEES.length ? EMPLOYEES.map(employeeRowHtml).join('') : `<p class="empty-note">لا يوجد موظفون بعد — أضف أول موظف</p>`;
 
   el.querySelectorAll('[data-emp-pw]').forEach(inp=>{
     inp.addEventListener('change', ()=>{
       const id = parseInt(inp.dataset.empPw);
       const val = inp.value.trim();
       const emp = EMPLOYEES.find(e=>e.id===id);
-      if (!emp) return;
-      if (val.length < 4){ toast('⚠ الرمز يتطلب 4 خانات على الأقل'); renderEmployeeList(); return; }
+      if (val.length < 4){ toast('⚠ كلمة المرور يجب أن تكون ٤ خانات على الأقل'); renderEmployeeList(); return; }
       emp.password = val;
-      toast(`✅ تم تعديل رمز مرور ${emp.name}`);
-      fsSaveConfigDebounced();
+      fbSaveEmployee(emp);
+      toast(`✅ تم تحديث كلمة مرور ${emp.name}`);
     });
   });
   el.querySelectorAll('[data-emp-active]').forEach(tg=>{
     tg.addEventListener('click', ()=>{
       const id = parseInt(tg.dataset.empActive);
       const emp = EMPLOYEES.find(e=>e.id===id);
-      if (!emp) return;
       emp.active = !emp.active;
+      fbSaveEmployee(emp);
       renderEmployeeList();
-      toast(emp.active ? `✅ تم تفعيل حساب الموظف ${emp.name}` : `🚫 تم تجميد صلاحيات دخول الموظف ${emp.name}`);
-      fsSaveConfigDebounced();
+      toast(emp.active ? `✅ ${emp.name} مفعّل ويقدر يسجّل دخول` : `🚫 ${emp.name} موقوف مؤقتاً عن الدخول`);
     });
   });
   el.querySelectorAll('[data-emp-del]').forEach(btn=>{
@@ -2269,50 +2301,55 @@ function renderEmployeeList(){
       const id = parseInt(btn.dataset.empDel);
       const emp = EMPLOYEES.find(e=>e.id===id);
       if (!emp) return;
-      if (!confirm(`هل أنت متأكد من مسح حساب الموظف "${emp.name}" نهائياً؟`)) return;
+      if (!confirm(`متأكد من حذف الموظف "${emp.name}"؟`)) return;
       EMPLOYEES = EMPLOYEES.filter(e=>e.id!==id);
+      fbDeleteEmployee(id);
       renderEmployeeList();
-      toast('🗑 تم حذف الموظف بنجاح');
-      fsSaveConfigDebounced();
+      toast('🗑 تم حذف الموظف');
     });
   });
 }
 function addEmployeeFormHtml(){
   return `
-    <h3>إضافة موظف جديد لـ ${SETTINGS.name}</h3>
-    <div class="field"><label>اسم الموظف الثنائي *</label><input type="text" id="neName" placeholder="علي أحمد" /></div>
-    <div class="field"><label>رمز مرور الحساب (4 أرقام) *</label><input type="text" id="nePw" dir="ltr" style="text-align:left" placeholder="1234" /></div>
+    <h3>إضافة موظف جديد</h3>
+    <div class="field"><label>اسم الموظف *</label><input type="text" id="neName" placeholder="مثال: علي" /></div>
+    <div class="field"><label>كلمة المرور *</label><input type="text" id="nePw" dir="ltr" style="text-align:left" placeholder="٤ خانات على الأقل، حروف وأرقام" /></div>
     <p class="field-error" id="neError"></p>
-    <button class="send-btn" id="neSubmit" style="background:linear-gradient(135deg,var(--o-green),#2f8f63);box-shadow:none">حفظ الموظف في النظام</button>
+    <button class="send-btn" id="neSubmit" style="background:linear-gradient(135deg,var(--o-green),#2f8f63);box-shadow:none">إضافة الموظف</button>
   `;
 }
 function openAddEmployeeForm(){
   showSheet(addEmployeeFormHtml(), ()=>{
-    document.getElementById('neSubmit')?.addEventListener('click', ()=>{
-      const name = document.getElementById('neName')?.value.trim() || '';
-      const pw = document.getElementById('nePw')?.value.trim() || '';
-      const errEl = document.getElementById('neError');
-      if (!name){ if (errEl) errEl.textContent = 'الرجاء كتابة اسم الموظف'; return; }
-      if (pw.length < 4){ if (errEl) errEl.textContent = 'رمز المرور يجب ألا يقل عن 4 أرقام'; return; }
+    document.getElementById('neSubmit').addEventListener('click', ()=>{
+      const name = document.getElementById('neName').value.trim();
+      const pw = document.getElementById('nePw').value.trim();
+      if (!name){ document.getElementById('neError').textContent = 'اكتب اسم الموظف'; return; }
+      if (pw.length < 4){ document.getElementById('neError').textContent = 'كلمة المرور يجب أن تكون ٤ خانات على الأقل'; return; }
       const newId = Math.max(0, ...EMPLOYEES.map(e=>e.id)) + 1;
-      EMPLOYEES.push({id:newId, name, password:pw, active:true, lastLogin:null});
+      const newEmp = {id:newId, name, password:pw, active:true, lastLogin:null};
+      EMPLOYEES.push(newEmp);
+      fbSaveEmployee(newEmp);
       hideSheet();
       renderEmployeeList();
-      toast('✅ تم تسجيل الحساب بنجاح وعمل التزامن الخلفي');
-      fsSaveConfigDebounced();
+      toast('✅ تمت إضافة الموظف بنجاح');
     });
   });
 }
-document.getElementById('addEmployeeBtn')?.addEventListener('click', openAddEmployeeForm);
+document.getElementById('addEmployeeBtn').addEventListener('click', openAddEmployeeForm);
 
 /* ============================================================ INIT ============================================================ */
-function startApp(){
+
+/* دالة التهيئة الفعلية — تُستدعى بعد تحميل Firebase */
+function postLoadInit(){
   applyTheme();
-  const statsInput = document.getElementById('statsDateInput');
-  if (statsInput) statsInput.value = selectedStatsDate;
-  const archiveInput = document.getElementById('archiveDateInput');
-  if (archiveInput) archiveInput.value = selectedArchiveDate;
-  
+  /* تطبيق اللون المحفوظ */
+  if(SETTINGS.customHex) applyCustomBrandColor(SETTINGS.customHex);
+  else if(SETTINGS.brandKey && SETTINGS.brandKey !== 'custom') applyBrandColor(SETTINGS.brandKey);
+
+  document.getElementById('heroName').textContent    = SETTINGS.name;
+  document.getElementById('heroTagline').textContent = SETTINGS.tagline;
+  document.getElementById('statsDateInput').value    = selectedStatsDate;
+  document.getElementById('archiveDateInput').value  = selectedArchiveDate;
   renderTabs();
   renderMenu();
   renderCartBar();
@@ -2326,49 +2363,20 @@ function startApp(){
   setMode('customer');
 }
 
-function setLoadingMsg(msg){ const el = document.getElementById('loadingMsg'); if(el) el.textContent = msg; }
-function hideLoading(){
-  const ls = document.getElementById('loadingScreen');
-  if (!ls) return;
-  ls.style.transition = 'opacity .3s';
-  ls.style.opacity = '0';
-  setTimeout(()=>ls.remove(), 320);
-}
+/* انتظار Firebase ثم تحميل البيانات */
+window.addEventListener('firebase-ready', ()=>{
+  fbLoadAll();
+});
 
-window.addEventListener('online',  ()=>{ const b=document.getElementById('connBadge'); if(b){ b.textContent='☁️ متصل أونلاين'; b.className='conn-badge conn-online'; setTimeout(()=>b.className='conn-badge',3000); } });
-window.addEventListener('offline', ()=>{ const b=document.getElementById('connBadge'); if(b){ b.textContent='⚡ بدون إنترنت — الحفظ محلي نشط'; b.className='conn-badge conn-offline'; } });
-
-/* ------------------------------------------------------------------
-   آلية الإقلاع السريع الفوري (Offline-First):
-   ١) شحن وحقن الـ localStorage مباشرة لتخطي شاشة التحميل في أقل من 50ms.
-   ٢) عزل الأخطاء لضمان عدم تعليق واجهة العميل العراقي تحت أي ظرف لشبكة الإنترنت.
------------------------------------------------------------------- */
-(async()=>{
-  try {
-    loadArchive();
-    hideLoading();
-    startApp();
-  } catch(e) {
-    console.error('[تموز] تخطي شاشة الانتظار والإقلاع الفوري الآمن:', e.message);
+/* timeout للحماية إذا فشل تحميل Firebase script نفسه */
+setTimeout(()=>{
+  if(!fbReady){
+    console.warn('Firebase لم يستجب — تشغيل بوضع offline (localStorage)');
+    loadArchiveFallback();
+    postLoadInit();
     hideLoading();
   }
-
-  // مزامنة وربط سحابي كامل مع Firebase Firestore بالخلفية دون حظر واجهة المستخدم
-  try{
-    await fsLoadAll();
-    firebaseReady = true;
-    saveArchive();
-    applyTheme();
-    renderMenu();
-    renderTabs();
-    renderStatGrid();
-    renderEmployeeList();
-    applyFeatures();
-    startRealtimeListeners();
-  }catch(e){
-    console.warn('[تموز] العمل بالوضع المحلي المسرع — مزامنة Firebase مؤجلة:', e.message);
-  }
-})();
+}, 8000);
 </script>
 </body>
 </html>
