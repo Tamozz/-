@@ -1593,364 +1593,15 @@ function submitNewItem(){
   });
   hideSheet();
   activeCat = cat;
-  renderTabs(); renderMenu(); renderEditorList();
+  renderTabs(); 
+  renderMenu(); 
+  renderEditorList();
   toast('✅ تمت إضافة الطبق بنجاح');
   fsSaveConfigDebounced();
-}
-document.getElementById('addItemBtn').const msg = document.getElementById('cpMsg').value.trim();
-  if (!msg){ document.getElementById('cpError').textContent = 'اكتب شكواك أو ملاحظتك أولاً'; return; }
-  const name = document.getElementById('cpName').value.trim() || 'زبون لم يذكر اسمه';
-  const phone = document.getElementById('cpPhone').value.replace(/[^0-9]/g,'');
-
-  complaintCounter++;
-  const complaint = {
-    num: complaintCounter, customerName: name, customerPhone: phone, message: msg,
-    time: nowStamp(), createdHour: new Date().getHours(), dateKey: todayKey(), status: 'جديدة'
-  };
-  COMPLAINTS.unshift(complaint);
-  fsSaveComplaint(complaint);
-  fsSaveConfigDebounced();
-  saveArchive();
-  sendComplaintToWhatsApp(complaint);
   hideSheet();
-  toast('✅ تم إرسال شكواك، شكراً لك');
-}
-function sendComplaintToWhatsApp(c){
-  let msg = `📢 شكوى/ملاحظة جديدة من زبون — ${SETTINGS.name}\n\n👤 ${c.customerName}`;
-  if (c.customerPhone) msg += `\n📞 ${c.customerPhone}`;
-  msg += `\n\n📝 ${c.message}`;
-  window.open(`https://wa.me/${SETTINGS.wa}?text=${encodeURIComponent(msg)}`, '_blank');
-}
-document.getElementById('openComplaintBtn').addEventListener('click', openComplaintForm);
-
-/* ============================================================ OWNER SUBNAV ============================================================ */
-document.querySelectorAll('.sub-tab').forEach(btn=>{
-  btn.addEventListener('click', ()=>{
-    document.querySelectorAll('.sub-tab').forEach(b=>b.classList.toggle('active', b===btn));
-    document.querySelectorAll('.owner-panel').forEach(p=>{
-      p.style.display = (p.id === 'panel-'+btn.dataset.panel) ? '' : 'none';
-    });
-    if (btn.dataset.panel === 'overview') renderStatGrid();
-    if (btn.dataset.panel === 'orders') renderOrderFeedInto('orderFeedOwner');
-    if (btn.dataset.panel === 'menu') renderEditorList();
-    if (btn.dataset.panel === 'employees') renderEmployeeList();
-    if (btn.dataset.panel === 'archive') renderArchive();
-  });
-});
-
-/* ============================================================ MODE SWITCH + ROLE ACCESS ============================================================ */
-function setMode(mode){
-  currentMode = mode;
-  const isDark = (mode === 'owner' || mode === 'employee' || mode === 'developer');
-  document.body.classList.toggle('mode-dark', isDark);
-  document.getElementById('view-customer').classList.toggle('active', mode === 'customer');
-  document.getElementById('view-employee').classList.toggle('active', mode === 'employee');
-  document.getElementById('view-owner').classList.toggle('active', mode === 'owner');
-  document.getElementById('view-developer').classList.toggle('active', mode === 'developer');
-
-  document.getElementById('ownerAccessBtn').style.display = mode === 'customer' ? '' : 'none';
-  document.getElementById('exitBtn').style.display = mode === 'customer' ? 'none' : '';
-
-  const sub = document.getElementById('brandSub');
-  if (mode === 'customer') sub.textContent = 'القائمة الذكية';
-  else if (mode === 'employee') sub.textContent = 'وضع الموظف — ' + (currentActorName||'');
-  else if (mode === 'owner') sub.textContent = 'وضع المالك';
-  else if (mode === 'developer') sub.textContent = 'وضع المطوّر';
-
-  if (mode === 'employee'){
-    document.getElementById('empWelcome').textContent = 'أهلاً ' + (currentActorName||'');
-    renderOrderFeedInto('orderFeedEmployee');
-  }
-  if (mode === 'owner'){ applyFeatures(); renderOrderFeedInto('orderFeedOwner'); }
-  if (mode === 'developer'){
-    renderDevEmployeeResetList();
-    renderDevDesignControls();
-    renderDevFeatureToggles();
-    document.getElementById('devNewOwnerPin').value='';
-    document.getElementById('devNewDevPw').value='';
-  }
-  if (mode === 'customer'){ currentActorName = null; }
-}
-document.getElementById('exitBtn').addEventListener('click', ()=> setMode('customer'));
-
-/* ---- role choice sheet (visible entry point — customer-facing button) ---- */
-function roleChoiceHtml(){
-  return `
-    <h3>الدخول للوحة العمل</h3>
-    <p class="pin-sub">اختر صفتك</p>
-    <div class="role-choice">
-      <button class="role-btn" id="chooseEmployee">
-        <span class="ricon">👨‍🍳</span>
-        <span class="rtext"><strong>أنا موظف</strong><span>تجهيز الطلبيات وتحديث حالتها</span></span>
-      </button>
-      <button class="role-btn" id="chooseOwner">
-        <span class="ricon">🔑</span>
-        <span class="rtext"><strong>أنا المالك</strong><span>كل الصلاحيات — أسعار، قائمة، إعدادات</span></span>
-      </button>
-    </div>`;
-}
-function openRoleChoice(){
-  showSheet(roleChoiceHtml(), ()=>{
-    document.getElementById('chooseEmployee').addEventListener('click', openEmployeeSelect);
-    document.getElementById('chooseOwner').addEventListener('click', openOwnerPinPad);
-  });
-}
-document.getElementById('ownerAccessBtn').addEventListener('click', openRoleChoice);
-
-/* ============================================================ PASSWORD PROMPT (reused for owner / employee / developer — open text, not digits-only) ============================================================ */
-let activePwValidate = null;
-let activePwOnSuccess = null;
-
-function passwordPromptHtml(title, sub){
-  return `
-    <div class="pinpad-wrap" style="text-align:right">
-      <h3 style="text-align:center">${title}</h3>
-      <p class="pin-sub" style="text-align:center">${sub}</p>
-      <div class="field">
-        <label>كلمة المرور</label>
-        <div class="pw-input-row">
-          <input type="password" id="pwInput" autocomplete="off" />
-          <button type="button" id="pwToggle" class="pw-toggle">👁</button>
-        </div>
-      </div>
-      <p class="field-error" id="pwError"></p>
-      <button class="send-btn" id="pwSubmitBtn" style="background:linear-gradient(135deg,var(--c-saffron),var(--c-saffron-deep))">دخول</button>
-    </div>`;
-}
-function openPasswordPrompt(title, sub, validateFn, onSuccess){
-  activePwValidate = validateFn;
-  activePwOnSuccess = onSuccess;
-  showSheet(passwordPromptHtml(title, sub), ()=>{
-    const input = document.getElementById('pwInput');
-    setTimeout(()=> input.focus(), 50);
-    document.getElementById('pwToggle').addEventListener('click', ()=>{
-      input.type = input.type === 'password' ? 'text' : 'password';
-    });
-    function trySubmit(){
-      const val = input.value;
-      if (val !== '' && activePwValidate(val)){
-        hideSheet();
-        activePwOnSuccess();
-      } else {
-        document.getElementById('pwError').textContent = 'كلمة مرور خاطئة، حاول مرة أخرى';
-        input.value = '';
-        input.focus();
-      }
-    }
-    document.getElementById('pwSubmitBtn').addEventListener('click', trySubmit);
-    input.addEventListener('keydown', (e)=>{ if (e.key === 'Enter') trySubmit(); });
-  });
 }
 
-function openOwnerPinPad(){
-  openPasswordPrompt('دخول لوحة المالك', 'هذه الشاشة للمالك فقط',
-    (val) => val === SETTINGS.pin,
-    () => { currentActorName = 'المالك'; setMode('owner'); }
-  );
-}
-function openDevPinPad(){
-  openPasswordPrompt('وضع المطوّر', 'هذه الشاشة لمطوّر النظام فقط',
-    (val) => val === DEV_PASSWORD,
-    () => { currentActorName = 'المطوّر'; setMode('developer'); }
-  );
-}
-document.getElementById('devModeBtn').addEventListener('click', openDevPinPad);
-
-/* ---- employee login: pick name from owner-registered list, then enter individual password ---- */
-function employeeSelectHtml(){
-  const active = EMPLOYEES.filter(e=>e.active);
-  if (active.length === 0){
-    return `<h3>دخول الموظف</h3><p class="pin-sub">لا يوجد أي موظف مُسجَّل بعد — اطلب من المالك إضافتك أولاً من تبويب "الموظفون"</p>`;
-  }
-  return `
-    <h3>من أنت؟</h3>
-    <p class="pin-sub">اختر اسمك من القائمة — لا يمكن كتابة اسم غير مسجَّل</p>
-    <div class="role-choice">
-      ${active.map(e => `
-        <button class="role-btn" data-emp="${e.id}">
-          <span class="ricon">👤</span>
-          <span class="rtext"><strong>${e.name}</strong><span>اضغط لإدخال كلمة المرور</span></span>
-        </button>`).join('')}
-    </div>`;
-}
-function openEmployeeSelect(){
-  showSheet(employeeSelectHtml(), ()=>{
-    document.querySelectorAll('[data-emp]').forEach(btn=>{
-      btn.addEventListener('click', ()=>{
-        const emp = EMPLOYEES.find(e=>e.id===parseInt(btn.dataset.emp));
-        if (emp) openEmployeePasswordPad(emp);
-      });
-    });
-  });
-}
-function openEmployeePasswordPad(employee){
-  openPasswordPrompt(`دخول ${employee.name}`, 'أدخل كلمة المرور الخاصة بك',
-    (val) => val === employee.password,
-    () => {
-      currentActorName = employee.name;
-      employee.lastLogin = nowStamp();
-      setMode('employee');
-    }
-  );
-}
-
-/* ============================================================ DEVELOPER MODE ACTIONS ============================================================ */
-
-/* ---- theme engine: applies font + corner-shape choices system-wide via CSS variables ---- */
-function applyTheme(){
-  const bf = FONT_OPTIONS[THEME.bodyFont] || FONT_OPTIONS.tajawal;
-  const df = DISPLAY_FONT_OPTIONS[THEME.displayFont] || DISPLAY_FONT_OPTIONS.lalezar;
-  const root = document.documentElement.style;
-  root.setProperty('--font-body', bf.stack);
-  root.setProperty('--font-display', df.stack);
-  root.setProperty('--radius-lg', THEME.radiusLg + 'px');
-  root.setProperty('--radius-md', THEME.radiusMd + 'px');
-  root.setProperty('--radius-sm', THEME.radiusSm + 'px');
-  root.setProperty('--c-bg', THEME.bgColor);
-  root.setProperty('--c-panel', THEME.panelColor);
-  root.setProperty('--c-panel-2', THEME.panel2Color);
-  root.setProperty('--c-ink', THEME.inkColor);
-  root.setProperty('--c-ink-soft', darkenHex(THEME.inkColor, -0.15));
-  root.setProperty('--c-line', hexToRgba(THEME.inkColor, 0.14));
-  root.setProperty('--c-muted', hexToRgba(THEME.inkColor, 0.62));
-}
-
-function renderDevDesignControls(){
-  const bodySel = document.getElementById('devBodyFont');
-  bodySel.innerHTML = Object.entries(FONT_OPTIONS).map(([k,v])=>`<option value="${k}" ${k===THEME.bodyFont?'selected':''}>${v.name}</option>`).join('');
-  const displaySel = document.getElementById('devDisplayFont');
-  displaySel.innerHTML = Object.entries(DISPLAY_FONT_OPTIONS).map(([k,v])=>`<option value="${k}" ${k===THEME.displayFont?'selected':''}>${v.name}</option>`).join('');
-  bodySel.onchange = (e)=>{ THEME.bodyFont = e.target.value; applyTheme(); toast('✅ تم تغيير خط النصوص'); fsSaveConfigDebounced(); };
-  displaySel.onchange = (e)=>{ THEME.displayFont = e.target.value; applyTheme(); toast('✅ تم تغيير خط العناوين'); fsSaveConfigDebounced(); };
-
-  const colorFields = [
-    ['devBgColor','bgColor','تم تغيير خلفية الصفحة'],
-    ['devPanelColor','panelColor','تم تغيير خلفية البطاقات'],
-    ['devPanel2Color','panel2Color','تم تغيير الخلفية الثانوية'],
-    ['devInkColor','inkColor','تم تغيير لون النص'],
-  ];
-  colorFields.forEach(([elId, themeKey, msg])=>{
-    const el = document.getElementById(elId);
-    el.value = THEME[themeKey];
-    el.oninput = (e)=>{ THEME[themeKey] = e.target.value; applyTheme(); };
-    el.onchange = ()=>{ toast('✅ ' + msg); fsSaveConfigDebounced(); };
-  });
-
-  const radiusFields = [['devRadiusLg','radiusLg'],['devRadiusMd','radiusMd'],['devRadiusSm','radiusSm']];
-  radiusFields.forEach(([elId, themeKey])=>{
-    const el = document.getElementById(elId);
-    el.value = THEME[themeKey];
-    el.oninput = (e)=>{
-      THEME[themeKey] = Math.min(60, Math.max(0, parseInt(e.target.value)||0));
-      applyTheme();
-    };
-    el.onchange = ()=>{ toast('✅ تم تغيير استدارة الزوايا'); fsSaveConfigDebounced(); };
-  });
-
-  document.getElementById('devResetThemeBtn').onclick = ()=>{
-    if (!confirm('سيُعاد التصميم بالكامل (الألوان والخطوط والاستدارة) للوضع الافتراضي. متابعة؟')) return;
-    THEME = JSON.parse(JSON.stringify(DEFAULT_THEME));
-    applyTheme();
-    renderDevDesignControls();
-    toast('↺ تم استعادة التصميم الافتراضي');
-    fsSaveConfigDebounced();
-  };
-}
-
-function renderDevFeatureToggles(){
-  const el = document.getElementById('devFeatureToggles');
-  el.innerHTML = Object.entries(FEATURE_LABELS).map(([key,label])=>`
-    <div class="dev-feature-row">
-      <span>${label}</span>
-      <div class="toggle ${FEATURES[key]?'on':''}" data-feat="${key}"><div class="toggle-knob"></div></div>
-    </div>`).join('');
-  el.querySelectorAll('[data-feat]').forEach(tg=>{
-    tg.addEventListener('click', ()=>{
-      const key = tg.dataset.feat;
-      FEATURES[key] = !FEATURES[key];
-      tg.classList.toggle('on', FEATURES[key]);
-      applyFeatures();
-      toast(FEATURES[key] ? `✅ تم تفعيل: ${FEATURE_LABELS[key]}` : `🚫 تم إيقاف: ${FEATURE_LABELS[key]}`);
-      fsSaveConfigDebounced();
-    });
-  });
-}
-
-function renderDevEmployeeResetList(){
-  const el = document.getElementById('devEmployeeResetList');
-  el.innerHTML = EMPLOYEES.length ? EMPLOYEES.map(e => `
-    <div class="editor-row">
-      <div class="editor-info"><div class="editor-name">${e.name}</div><div class="editor-cat">${e.active ? 'نشط' : 'موقوف'} ${e.lastLogin ? '· آخر دخول ' + e.lastLogin : ''}</div></div>
-      <input type="text" class="dev-pw-input" data-dev-pw="${e.id}" placeholder="كلمة مرور جديدة" />
-    </div>`).join('') : `<p class="empty-note">لا يوجد موظفون بعد</p>`;
-
-  el.querySelectorAll('[data-dev-pw]').forEach(inp=>{
-    inp.addEventListener('change', ()=>{
-      const id = parseInt(inp.dataset.devPw);
-      const val = inp.value.trim();
-      const emp = EMPLOYEES.find(x=>x.id===id);
-      if (val.length < 4){ toast('⚠ كلمة المرور يجب أن تكون ٤ خانات على الأقل'); inp.value=''; return; }
-      emp.password = val;
-      inp.value = '';
-      toast(`✅ تم تغيير كلمة مرور ${emp.name}`);
-      fsSaveConfigDebounced();
-    });
-  });
-}
-document.getElementById('devSetOwnerPinBtn').addEventListener('click', ()=>{
-  const val = document.getElementById('devNewOwnerPin').value.trim();
-  if (val.length < 4){ toast('⚠ كلمة المرور يجب أن تكون ٤ خانات على الأقل'); return; }
-  SETTINGS.pin = val;
-  document.getElementById('devNewOwnerPin').value = '';
-  toast('✅ تم تغيير كلمة مرور دخول المالك');
-  fsSaveConfigDebounced();
-});
-document.getElementById('devSetDevPwBtn').addEventListener('click', ()=>{
-  const val = document.getElementById('devNewDevPw').value.trim();
-  if (val.length < 4){ toast('⚠ كلمة المرور يجب أن تكون ٤ خانات على الأقل'); return; }
-  DEV_PASSWORD = val;
-  document.getElementById('devNewDevPw').value = '';
-  toast('✅ تم تغيير كلمة مرور المطوّر — احفظها في مكان آمن');
-  fsSaveConfig(); // فوري — تغيير كلمة المطوّر لا ينتظر debounce
-});
-document.getElementById('devCopySettingsBtn').addEventListener('click', ()=>{
-  const data = JSON.stringify({SETTINGS, EMPLOYEES, FEATURES, THEME, DEV_PASSWORD}, null, 2);
-  if (navigator.clipboard && navigator.clipboard.writeText){
-    navigator.clipboard.writeText(data).then(()=> toast('✅ تم نسخ الإعدادات')).catch(()=> toast('⚠ تعذّر النسخ التلقائي'));
-  } else {
-    toast('⚠ النسخ التلقائي غير مدعوم في هذا المتصفح');
-  }
-});
-document.getElementById('devWipeOrdersBtn').addEventListener('click', ()=>{
-  if (!confirm('سيتم حذف كل الطلبيات من الذاكرة. (لا تُحذف من Firestore تلقائياً — احذفها من Firebase Console إذا لزم) متابعة؟')) return;
-  ORDERS = [];
-  sessionOrderCount = 0;
-  renderStatGrid();
-  toast('✅ تم تصفير الطلبيات من الذاكرة');
-});
-
-/* ============================================================ OWNER: EMPLOYEE MANAGEMENT ============================================================ */
-function employeeRowHtml(emp){
-  return `
-    <div class="editor-row">
-      <div class="editor-emoji">👤</div>
-      <div class="editor-info">
-        <div class="editor-name">${emp.name}</div>
-        <div class="editor-cat">${emp.lastLogin ? 'آخر دخول: ' + emp.lastLogin : 'لم يسجّل الدخول بعد'}</div>
-      </div>
-      <input type="text" class="dev-pw-input" data-emp-pw="${emp.id}" value="${emp.password}" />
-      <div class="toggle ${emp.active?'on':''}" data-emp-active="${emp.id}"><div class="toggle-knob"></div></div>
-      <button class="del-btn" data-emp-del="${emp.id}">🗑</button>
-    </div>`;
-}
-function renderEmployeeList(){
-  const el = document.getElementById('employeeList');
-  el.innerHTML = EMPLOYEES.length ? EMPLOYEES.map(employeeRowHtml).join('') : `<p class="empty-note">لا يوجد موظفون بعد — أضف أول موظف</p>`;
-
-  el.querySelectorAll('[data-emp-pw]').forEach(inp=>{
-    inp.addEventListener('change', ()=>{
-      const id = parseInt(inp.dataset.empPw);
-// تأمين ربط زر إضافة المواد بشكل صحيح وآمن ومنع انهيار الكود لو كان العنصر مخفياً
+// ربط آمن لزر إضافة المواد لمنع الانهيار البرمجي
 document.getElementById('addItemBtn')?.addEventListener('click', openAddItemForm);
 
 /* ============================================================ OWNER: SETTINGS ============================================================ */
@@ -1962,7 +1613,7 @@ function renderBrandSwatches(){
     btn.addEventListener('click', ()=>{
       applyBrandColor(btn.dataset.key);
       el.querySelectorAll('.brand-swatch').forEach(b=>b.classList.toggle('active', b===btn));
-      toast('✅ تم تغيير لون العلامة');
+      toast('✅ تم تغيير لون العلامة التجارية');
       fsSaveConfigDebounced();
     });
   });
@@ -1974,7 +1625,6 @@ function applyBizTypeToUI(){
 }
 
 function applyFeatures(){
-  // وضع الزبون
   const loyaltyBox = document.getElementById('loyaltyBox');
   if (loyaltyBox) loyaltyBox.style.display = FEATURES.loyaltyCard ? '' : 'none';
   
@@ -1987,27 +1637,23 @@ function applyFeatures(){
     if (searchWrap) searchWrap.style.display = FEATURES.search ? '' : 'none';
   }
 
-  // تبويبات لوحة المالك
   const tabMap = {overview:'statistics', archive:'archive', employees:'employees'};
   document.querySelectorAll('.sub-tab').forEach(btn=>{
     const flagKey = tabMap[btn.dataset.panel];
     if (flagKey) btn.style.display = FEATURES[flagKey] ? '' : 'none';
   });
   
-  // لو كان التبويب النشط مخفياً الآن، انتقل لتبويب الطلبيات (دائماً ظاهر)
   const activeTab = document.querySelector('.sub-tab.active');
   if (activeTab && activeTab.style.display === 'none'){
     document.querySelector('[data-panel="orders"]')?.click();
   }
 
-  // أزرار التصدير
   const exportBtn = document.getElementById('exportBtn');
   if (exportBtn) exportBtn.style.display = FEATURES.csvExport ? '' : 'none';
   
   const archiveExportBtn = document.getElementById('archiveExportBtn');
   if (archiveExportBtn) archiveExportBtn.style.display = FEATURES.csvExport ? '' : 'none';
 
-  // أقسام الإعدادات
   const brandingSettingsBlock = document.getElementById('brandingSettingsBlock');
   if (brandingSettingsBlock) brandingSettingsBlock.style.display = FEATURES.customBranding ? '' : 'none';
   
@@ -2047,7 +1693,7 @@ function initSettingsForm(){
   }
 
   document.getElementById('setName')?.addEventListener('input', (e)=>{
-    SETTINGS.name = e.target.value || 'مطعمك';
+    SETTINGS.name = e.target.value || 'نظامك الرقمي';
     const heroName = document.getElementById('heroName');
     if (heroName) heroName.textContent = SETTINGS.name;
   });
@@ -2076,7 +1722,7 @@ function initSettingsForm(){
   });
   document.getElementById('setPin')?.addEventListener('input', (e)=>{
     const val = e.target.value.trim();
-    if (val.length >= 4){ SETTINGS.pin = val; toast('✅ تم حفظ كلمة مرور المالك'); fsSaveConfigDebounced(); }
+    if (val.length >= 4){ SETTINGS.pin = val; toast('✅ تم حفظ رمز المالك الجديد'); fsSaveConfigDebounced(); }
   });
   soundToggle?.addEventListener('click', ()=>{
     SETTINGS.soundEnabled = !SETTINGS.soundEnabled;
@@ -2093,7 +1739,7 @@ function initSettingsForm(){
       const hex = customColor.value;
       applyCustomBrandColor(hex);
       document.querySelectorAll('.brand-swatch').forEach(b=>b.classList.remove('active'));
-      toast('✅ تم تطبيق اللون الحر');
+      toast('✅ تم تطبيق اللون المخصص');
       fsSaveConfigDebounced();
     }
   });
@@ -2110,14 +1756,14 @@ function exportOrders(){
   const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8;'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url; a.download = 'طلبيات-' + SETTINGS.name + '.csv';
+  a.href = url; a.download = 'سجل-الطلبيات-' + SETTINGS.name + '.csv';
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
   URL.revokeObjectURL(url);
-  toast('✅ تم تصدير الملف');
+  toast('✅ تم تصدير ملف الطلبيات بنجاح');
 }
 document.getElementById('exportBtn')?.addEventListener('click', exportOrders);
 
-/* ============================================================ OWNER: ARCHIVE / DATABASE (browse any past day) ============================================================ */
+/* ============================================================ OWNER: ARCHIVE / DATABASE ============================================================ */
 let selectedArchiveDate = todayKey();
 
 function complaintCardHtml(c){
@@ -2138,7 +1784,7 @@ function renderArchive(){
   if (FEATURES.complaints){
     const dayComplaints = complaintsForDate(selectedArchiveDate);
     const cEl = document.getElementById('archiveComplaintsFeed');
-    if (cEl) cEl.innerHTML = dayComplaints.length ? dayComplaints.map(complaintCardHtml).join('') : `<p class="empty-note">لا توجد شكاوى في هذا اليوم</p>`;
+    if (cEl) cEl.innerHTML = dayComplaints.length ? dayComplaints.map(complaintCardHtml).join('') : `<p class="empty-note">لا توجد شكاوى مسجلة لهذا اليوم</p>`;
   }
 }
 
@@ -2146,7 +1792,7 @@ function exportDayData(dateKey){
   const dayOrders = ordersForDate(dateKey);
   const dayComplaints = complaintsForDate(dateKey);
   if (dayOrders.length === 0 && dayComplaints.length === 0){
-    toast('⚠ لا توجد بيانات في هذا اليوم لتحميلها');
+    toast('⚠ لا توجد بيانات محفوظة في هذا اليوم لتحميلها');
     return;
   }
   let csv = 'النوع,الرقم,الاسم,الهاتف,التفاصيل,المبلغ,الحالة,استلمه,وقت الاستلام,الوقت\n';
@@ -2164,7 +1810,7 @@ function exportDayData(dateKey){
   a.href = url; a.download = `بيانات-${dateKey}-${SETTINGS.name}.csv`;
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
   URL.revokeObjectURL(url);
-  toast('✅ تم تحميل بيانات اليوم المحدد');
+  toast('✅ تم تصدير بيانات اليوم المحدد');
 }
 
 document.getElementById('archiveDateInput')?.addEventListener('change', (e)=>{
@@ -2197,15 +1843,14 @@ document.getElementById('statsYearSelect')?.addEventListener('change', (e)=>{
 /* ============================================================ CUSTOMER: COMPLAINTS / FEEDBACK ============================================================ */
 function complaintFormHtml(){
   return `
-    <h3>شكوى أو ملاحظة</h3>
-    <p class="pin-sub">رأيك يهمنا ويصل مباشرة لإدارة المحل عبر واتساب</p>
-    <div class="field"><label>اسمك (اختياري)</label><input type="text" id="cpName" placeholder="مثال: أحمد" /></div>
-    <div class="field"><label>رقم هاتفك (اختياري — لو تريد رداً)</label><input type="text" id="cpPhone" dir="ltr" style="text-align:left" inputmode="numeric" /></div>
-    <div class="field"><label>اكتب شكواك أو ملاحظتك *</label><textarea id="cpMsg" rows="4" placeholder="اكتب هنا..."></textarea></div>
+    <h3>إرسال شكوى أو ملاحظة</h3>
+    <p class="pin-sub">تصل ملاحظتك مباشرة إلى المالك وتضمن سرية وهويّة العميل</p>
+    <div class="field"><label>الاسم (اختياري)</label><input type="text" id="cpName" placeholder="مثال: زبون" /></div>
+    <div class="field"><label>رقم الهاتف (اختياري)</label><input type="text" id="cpPhone" dir="ltr" style="text-align:left" inputmode="numeric" /></div>
+    <div class="field"><label>تفاصيل الملاحظة أو الشكوى *</label><textarea id="cpMsg" rows="4" placeholder="اكتب شكواك هنا..."></textarea></div>
     <p class="field-error" id="cpError"></p>
     <button class="send-btn" id="cpSubmitBtn">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4c-.3-.1-1.7-.8-2-.9-.3-.1-.5-.1-.7.1-.2.3-.7.9-.9 1.1-.2.2-.3.2-.6.1-1.6-.8-2.6-1.4-3.7-3.2-.3-.5.3-.5.8-1.6.1-.2 0-.4-.1-.5-.1-.1-.6-1.5-.9-2-.2-.5-.4-.4-.7-.4-.2 0-.5 0-.7 0-.2 0-.6.1-.9.4-.3.3-1.2 1.1-1.2 2.7s1.2 3.2 1.4 3.4c.2.2 2.3 3.6 5.7 4.8 2.8 1 2.8.7 3.3.6.5-.1 1.7-.7 1.9-1.4.2-.7.2-1.3.2-1.4-.1-.1-.3-.2-.6-.4z"/><path d="M12 2a10 10 0 0 0-8.5 15.3L2 22l4.8-1.4A10 10 0 1 0 12 2zm0 18.2c-1.6 0-3.1-.4-4.4-1.2l-.3-.2-3.3 1 1-3.2-.2-.3A8.2 8.2 0 1 1 12 20.2z"/></svg>
-      إرسال الشكوى
+      إرسال الشكوى فوراً
     </button>
   `;
 }
@@ -2226,7 +1871,6 @@ function submitComplaint(){
   const name = document.getElementById('cpName')?.value.trim() || 'زبون لم يذكر اسمه';
   let phone = document.getElementById('cpPhone')?.value.replace(/[^0-9]/g,'') || '';
   
-  // تحسين ذكي لرقم الهاتف العراقي ليتوافق دولياً مع نظام WhatsApp API المباشر
   if (phone.startsWith('07')) {
     phone = '964' + phone.substring(1);
   }
@@ -2245,9 +1889,9 @@ function submitComplaint(){
   toast('✅ تم إرسال شكواك، شكراً لك');
 }
 function sendComplaintToWhatsApp(c){
-  let msg = `📢 شكوى/ملاحظة جديدة من زبون — ${SETTINGS.name}\n\n👤 ${c.customerName}`;
-  if (c.customerPhone) msg += `\n📞 ${c.customerPhone}`;
-  msg += `\n\n📝 ${c.message}`;
+  let msg = `📢 شكوى/ملاحظة جديدة من نظام: ${SETTINGS.name}\n\n👤 العميل: ${c.customerName}`;
+  if (c.customerPhone) msg += `\n📞 الهاتف: ${c.customerPhone}`;
+  msg += `\n\n📝 تفاصيل الشكوى:\n${c.message}`;
   window.open(`https://wa.me/${SETTINGS.wa}?text=${encodeURIComponent(msg)}`, '_blank');
 }
 document.getElementById('openComplaintBtn')?.addEventListener('click', openComplaintForm);
@@ -2288,7 +1932,7 @@ function setMode(mode){
     if (mode === 'customer') sub.textContent = 'القائمة الذكية';
     else if (mode === 'employee') sub.textContent = 'وضع الموظف — ' + (currentActorName||'');
     else if (mode === 'owner') sub.textContent = 'وضع المالك';
-    else if (mode === 'developer') sub.textContent = 'وضع المطوّر';
+    else if (mode === 'developer') sub.textContent = 'وضع المطوّر المتقدم';
   }
 
   if (mode === 'employee'){
@@ -2308,19 +1952,18 @@ function setMode(mode){
 }
 document.getElementById('exitBtn')?.addEventListener('click', ()=> setMode('customer'));
 
-/* ---- role choice sheet ---- */
 function roleChoiceHtml(){
   return `
-    <h3>الدخول للوحة العمل</h3>
-    <p class="pin-sub">اختر صفتك</p>
+    <h3>الدخول للوحة التحكم</h3>
+    <p class="pin-sub">اختر دورك الوظيفي للمتابعة</p>
     <div class="role-choice">
       <button class="role-btn" id="chooseEmployee">
         <span class="ricon">👨‍🍳</span>
-        <span class="rtext"><strong>أنا موظف</strong><span>تجهيز الطلبيات وتحديث حالتها</span></span>
+        <span class="rtext"><strong>أنا موظف</strong><span>إدارة الطلبيات النشطة وتجهيزها</span></span>
       </button>
       <button class="role-btn" id="chooseOwner">
         <span class="ricon">🔑</span>
-        <span class="rtext"><strong>أنا المالك</strong><span>كل الصلاحيات — أسعار، قائمة، إعدادات</span></span>
+        <span class="rtext"><strong>أنا المالك</strong><span>إدارة كاملة للمحل، الأسعار، التقارير</span></span>
       </button>
     </div>`;
 }
@@ -2349,7 +1992,7 @@ function passwordPromptHtml(title, sub){
         </div>
       </div>
       <p class="field-error" id="pwError"></p>
-      <button class="send-btn" id="pwSubmitBtn" style="background:linear-gradient(135deg,var(--c-saffron),var(--c-saffron-deep))">دخول</button>
+      <button class="send-btn" id="pwSubmitBtn" style="background:linear-gradient(135deg,var(--c-saffron),var(--c-saffron-deep))">تأكيد الدخول</button>
     </div>`;
 }
 function openPasswordPrompt(title, sub, validateFn, onSuccess){
@@ -2369,7 +2012,7 @@ function openPasswordPrompt(title, sub, validateFn, onSuccess){
         activePwOnSuccess();
       } else {
         const errEl = document.getElementById('pwError');
-        if (errEl) errEl.textContent = 'كلمة مرور خاطئة، حاول مرة أخرى';
+        if (errEl) errEl.textContent = 'كلمة مرور خاطئة، يرجى المحاولة ثانية';
         input.value = '';
         input.focus();
       }
@@ -2380,33 +2023,32 @@ function openPasswordPrompt(title, sub, validateFn, onSuccess){
 }
 
 function openOwnerPinPad(){
-  openPasswordPrompt('دخول لوحة المالك', 'هذه الشاشة للمالك فقط',
+  openPasswordPrompt('لوحة التحكم للمالك', 'الرجاء إدخال رمز المالك الخاص بك',
     (val) => val === SETTINGS.pin,
     () => { currentActorName = 'المالك'; setMode('owner'); }
   );
 }
 function openDevPinPad(){
-  openPasswordPrompt('وضع المطوّر', 'هذه الشاشة لمطوّر النظام فقط',
+  openPasswordPrompt('وضع المطور والمشرف', 'صلاحيات تعديل بنية النظام الأساسية',
     (val) => val === DEV_PASSWORD,
     () => { currentActorName = 'المطوّر'; setMode('developer'); }
   );
 }
 document.getElementById('devModeBtn')?.addEventListener('click', openDevPinPad);
 
-/* ---- employee login ---- */
 function employeeSelectHtml(){
   const active = EMPLOYEES.filter(e=>e.active);
   if (active.length === 0){
-    return `<h3>دخول الموظف</h3><p class="pin-sub">لا يوجد أي موظف مُسجَّل بعد — اطلب من المالك إضافتك أولاً من تبويب "الموظفون"</p>`;
+    return `<h3>دخول الموظفين</h3><p class="pin-sub">لا توجد حسابات موظفين نشطة. اطلب من المالك إضافتك من قسم "الموظفون"</p>`;
   }
   return `
-    <h3>من أنت؟</h3>
-    <p class="pin-sub">اختر اسمك من القائمة — لا يمكن كتابة اسم غير مسجَّل</p>
+    <h3>اختيار الحساب</h3>
+    <p class="pin-sub">اختر اسمك لإدخال رمز المرور الفردي</p>
     <div class="role-choice">
       ${active.map(e => `
         <button class="role-btn" data-emp="${e.id}">
           <span class="ricon">👤</span>
-          <span class="rtext"><strong>${e.name}</strong><span>اضغط لإدخال كلمة المرور</span></span>
+          <span class="rtext"><strong>${e.name}</strong><span>تسجيل دخول للعمل</span></span>
         </button>`).join('')}
     </div>`;
 }
@@ -2421,7 +2063,7 @@ function openEmployeeSelect(){
   });
 }
 function openEmployeePasswordPad(employee){
-  openPasswordPrompt(`دخول ${employee.name}`, 'أدخل كلمة المرور الخاصة بك',
+  openPasswordPrompt(`دخول الحساب: ${employee.name}`, 'أدخل رمز المرور السري المكون من 4 أرقام',
     (val) => val === employee.password,
     () => {
       currentActorName = employee.name;
@@ -2454,19 +2096,19 @@ function renderDevDesignControls(){
   const bodySel = document.getElementById('devBodyFont');
   if (bodySel) {
     bodySel.innerHTML = Object.entries(FONT_OPTIONS).map(([k,v])=>`<option value="${k}" ${k===THEME.bodyFont?'selected':''}>${v.name}</option>`).join('');
-    bodySel.onchange = (e)=>{ THEME.bodyFont = e.target.value; applyTheme(); toast('✅ تم تغيير خط النصوص'); fsSaveConfigDebounced(); };
+    bodySel.onchange = (e)=>{ THEME.bodyFont = e.target.value; applyTheme(); toast('✅ تم تحديث خط النصوص'); fsSaveConfigDebounced(); };
   }
   const displaySel = document.getElementById('devDisplayFont');
   if (displaySel) {
     displaySel.innerHTML = Object.entries(DISPLAY_FONT_OPTIONS).map(([k,v])=>`<option value="${k}" ${k===THEME.displayFont?'selected':''}>${v.name}</option>`).join('');
-    displaySel.onchange = (e)=>{ THEME.displayFont = e.target.value; applyTheme(); toast('✅ تم تغيير خط العناوين'); fsSaveConfigDebounced(); };
+    displaySel.onchange = (e)=>{ THEME.displayFont = e.target.value; applyTheme(); toast('✅ تم تحديث خط العناوين'); fsSaveConfigDebounced(); };
   }
 
   const colorFields = [
-    ['devBgColor','bgColor','تم تغيير خلفية الصفحة'],
-    ['devPanelColor','panelColor','تم تغيير خلفية البطاقات'],
-    ['devPanel2Color','panel2Color','تم تغيير الخلفية الثانوية'],
-    ['devInkColor','inkColor','تم تغيير لون النص'],
+    ['devBgColor','bgColor','تم تحديث خلفية التطبيق'],
+    ['devPanelColor','panelColor','تم تحديث ألوان الألواح'],
+    ['devPanel2Color','panel2Color','تم تحديث الألوان الثانوية'],
+    ['devInkColor','inkColor','تم تحديث لون النصوص'],
   ];
   colorFields.forEach(([elId, themeKey, msg])=>{
     const el = document.getElementById(elId);
@@ -2486,18 +2128,18 @@ function renderDevDesignControls(){
         THEME[themeKey] = Math.min(60, Math.max(0, parseInt(e.target.value)||0));
         applyTheme();
       };
-      el.onchange = ()=>{ toast('✅ تم تغيير استدارة الزوايا'); fsSaveConfigDebounced(); };
+      el.onchange = ()=>{ toast('✅ تم تعديل أقطار الحواف التكيفية'); fsSaveConfigDebounced(); };
     }
   });
 
   const resetThemeBtn = document.getElementById('devResetThemeBtn');
   if (resetThemeBtn) {
     resetThemeBtn.onclick = ()=>{
-      if (!confirm('سيُعاد التصميم بالكامل (الألوان والخطوط والاستدارة) للوضع الافتراضي. متابعة؟')) return;
+      if (!confirm('هل تود استعادة ثيم النظام والنقوش الافتراضية؟')) return;
       THEME = JSON.parse(JSON.stringify(DEFAULT_THEME));
       applyTheme();
       renderDevDesignControls();
-      toast('↺ تم استعادة التصميم الافتراضي');
+      toast('↺ تم تصفير وإرجاع المظهر القياسي');
       fsSaveConfigDebounced();
     };
   }
@@ -2517,7 +2159,7 @@ function renderDevFeatureToggles(){
       FEATURES[key] = !FEATURES[key];
       tg.classList.toggle('on', FEATURES[key]);
       applyFeatures();
-      toast(FEATURES[key] ? `✅ تم تفعيل: ${FEATURE_LABELS[key]}` : `🚫 تم إيقاف: ${FEATURE_LABELS[key]}`);
+      toast(FEATURES[key] ? `✅ تفعيل ميزة: ${FEATURE_LABELS[key]}` : `🚫 إيقاف ميزة: ${FEATURE_LABELS[key]}`);
       fsSaveConfigDebounced();
     });
   });
@@ -2528,9 +2170,9 @@ function renderDevEmployeeResetList(){
   if (!el) return;
   el.innerHTML = EMPLOYEES.length ? EMPLOYEES.map(e => `
     <div class="editor-row">
-      <div class="editor-info"><div class="editor-name">${e.name}</div><div class="editor-cat">${e.active ? 'نشط' : 'موقوف'} ${e.lastLogin ? '· آخر دخول ' + e.lastLogin : ''}</div></div>
-      <input type="text" class="dev-pw-input" data-dev-pw="${e.id}" placeholder="كلمة مرور جديدة" />
-    </div>`).join('') : `<p class="empty-note">لا يوجد موظفون بعد</p>`;
+      <div class="editor-info"><div class="editor-name">${e.name}</div><div class="editor-cat">${e.active ? 'نشط' : 'معطل'} ${e.lastLogin ? '· دخول: ' + e.lastLogin : ''}</div></div>
+      <input type="text" class="dev-pw-input" data-dev-pw="${e.id}" placeholder="تغيير الرمز السري" />
+    </div>`).join('') : `<p class="empty-note">لا يوجد موظفون في قاعدة البيانات حالياً</p>`;
 
   el.querySelectorAll('[data-dev-pw]').forEach(inp=>{
     inp.addEventListener('change', ()=>{
@@ -2538,46 +2180,46 @@ function renderDevEmployeeResetList(){
       const val = inp.value.trim();
       const emp = EMPLOYEES.find(x=>x.id===id);
       if (!emp) return;
-      if (val.length < 4){ toast('⚠ كلمة المرور يجب أن تكون ٤ خانات على الأقل'); inp.value=''; return; }
+      if (val.length < 4){ toast('⚠ يجب ألا يقل الرمز عن 4 أرقام'); inp.value=''; return; }
       emp.password = val;
       inp.value = '';
-      toast(`✅ تم تغيير كلمة مرور ${emp.name}`);
+      toast(`✅ تم إجبار تعيين رمز الموظف ${emp.name}`);
       fsSaveConfigDebounced();
     });
   });
 }
 document.getElementById('devSetOwnerPinBtn')?.addEventListener('click', ()=>{
   const val = document.getElementById('devNewOwnerPin')?.value.trim() || '';
-  if (val.length < 4){ toast('⚠ كلمة المرور يجب أن تكون ٤ خانات على الأقل'); return; }
+  if (val.length < 4){ toast('⚠ الرمز السري للمالك يتطلب 4 خانات فأكثر'); return; }
   SETTINGS.pin = val;
   const ownerPinInput = document.getElementById('devNewOwnerPin');
   if (ownerPinInput) ownerPinInput.value = '';
-  toast('✅ تم تغيير كلمة مرور دخول المالك');
+  toast('✅ تم تحديث رمز دخول المالك الرئيسي');
   fsSaveConfigDebounced();
 });
 document.getElementById('devSetDevPwBtn')?.addEventListener('click', ()=>{
   const val = document.getElementById('devNewDevPw')?.value.trim() || '';
-  if (val.length < 4){ toast('⚠ كلمة المرور يجب أن تكون ٤ خانات على الأقل'); return; }
+  if (val.length < 4){ toast('⚠ الرمز يتطلب 4 خانات على الأقل'); return; }
   DEV_PASSWORD = val;
   const devPwInput = document.getElementById('devNewDevPw');
   if (devPwInput) devPwInput.value = '';
-  toast('✅ تم تغيير كلمة مرور المطوّر — احفظها في مكان آمن');
+  toast('✅ تم تغيير كلمة مرور المطور بنجاح');
   fsSaveConfig();
 });
 document.getElementById('devCopySettingsBtn')?.addEventListener('click', ()=>{
   const data = JSON.stringify({SETTINGS, EMPLOYEES, FEATURES, THEME, DEV_PASSWORD}, null, 2);
   if (navigator.clipboard && navigator.clipboard.writeText){
-    navigator.clipboard.writeText(data).then(()=> toast('✅ تم نسخ الإعدادات')).catch(()=> toast('⚠ تعذّر النسخ التلقائي'));
+    navigator.clipboard.writeText(data).then(()=> toast('✅ تم نسخ البنية الـ JSON للحافظة')).catch(()=> toast('⚠ فشل النسخ التلقائي'));
   } else {
-    toast('⚠ النسخ التلقائي غير مدعوم في هذا المتصفح');
+    toast('⚠ متصفحك يمنع الوصول التلقائي للحافظة');
   }
 });
 document.getElementById('devWipeOrdersBtn')?.addEventListener('click', ()=>{
-  if (!confirm('سيتم حذف كل الطلبيات من الذاكرة. (لا تُحذف من Firestore تلقائياً — احذفها من Firebase Console إذا لزم) متابعة؟')) return;
+  if (!confirm('أنت على وشك حذف وتصفير الطلبيات المخزنة كاش مؤقتاً داخل المتصفح. متابعة؟')) return;
   ORDERS = [];
   sessionOrderCount = 0;
   renderStatGrid();
-  toast('✅ تم تصفير الطلبيات من الذاكرة');
+  toast('✅ تم مسح ذاكرة الكاش للطلبيات');
 });
 
 /* ============================================================ OWNER: EMPLOYEE MANAGEMENT ============================================================ */
@@ -2587,7 +2229,7 @@ function employeeRowHtml(emp){
       <div class="editor-emoji">👤</div>
       <div class="editor-info">
         <div class="editor-name">${emp.name}</div>
-        <div class="editor-cat">${emp.lastLogin ? 'آخر دخول: ' + emp.lastLogin : 'لم يسجّل الدخول بعد'}</div>
+        <div class="editor-cat">${emp.lastLogin ? 'نشاط: ' + emp.lastLogin : 'لم يسجل دخول بعد'}</div>
       </div>
       <input type="text" class="dev-pw-input" data-emp-pw="${emp.id}" value="${emp.password}" />
       <div class="toggle ${emp.active?'on':''}" data-emp-active="${emp.id}"><div class="toggle-knob"></div></div>
@@ -2597,7 +2239,7 @@ function employeeRowHtml(emp){
 function renderEmployeeList(){
   const el = document.getElementById('employeeList');
   if (!el) return;
-  el.innerHTML = EMPLOYEES.length ? EMPLOYEES.map(employeeRowHtml).join('') : `<p class="empty-note">لا يوجد موظفون بعد — أضف أول موظف</p>`;
+  el.innerHTML = EMPLOYEES.length ? EMPLOYEES.map(employeeRowHtml).join('') : `<p class="empty-note">لا يوجد موظفون مضافون، انقر على زر الإضافة لتسجيل موظف</p>`;
 
   el.querySelectorAll('[data-emp-pw]').forEach(inp=>{
     inp.addEventListener('change', ()=>{
@@ -2605,9 +2247,9 @@ function renderEmployeeList(){
       const val = inp.value.trim();
       const emp = EMPLOYEES.find(e=>e.id===id);
       if (!emp) return;
-      if (val.length < 4){ toast('⚠ كلمة المرور يجب أن تكون ٤ خانات على الأقل'); renderEmployeeList(); return; }
+      if (val.length < 4){ toast('⚠ الرمز يتطلب 4 خانات على الأقل'); renderEmployeeList(); return; }
       emp.password = val;
-      toast(`✅ تم تحديث كلمة مرور ${emp.name}`);
+      toast(`✅ تم تعديل رمز مرور ${emp.name}`);
       fsSaveConfigDebounced();
     });
   });
@@ -2618,7 +2260,7 @@ function renderEmployeeList(){
       if (!emp) return;
       emp.active = !emp.active;
       renderEmployeeList();
-      toast(emp.active ? `✅ ${emp.name} مفعّل ويقدر يسجّل دخول` : `🚫 ${emp.name} موقوف مؤقتاً عن الدخول`);
+      toast(emp.active ? `✅ تم تفعيل حساب الموظف ${emp.name}` : `🚫 تم تجميد صلاحيات دخول الموظف ${emp.name}`);
       fsSaveConfigDebounced();
     });
   });
@@ -2627,21 +2269,21 @@ function renderEmployeeList(){
       const id = parseInt(btn.dataset.empDel);
       const emp = EMPLOYEES.find(e=>e.id===id);
       if (!emp) return;
-      if (!confirm(`متأكد من حذف الموظف "${emp.name}"؟`)) return;
+      if (!confirm(`هل أنت متأكد من مسح حساب الموظف "${emp.name}" نهائياً؟`)) return;
       EMPLOYEES = EMPLOYEES.filter(e=>e.id!==id);
       renderEmployeeList();
-      toast('🗑 تم حذف الموظف');
+      toast('🗑 تم حذف الموظف بنجاح');
       fsSaveConfigDebounced();
     });
   });
 }
 function addEmployeeFormHtml(){
   return `
-    <h3>إضافة موظف جديد</h3>
-    <div class="field"><label>اسم الموظف *</label><input type="text" id="neName" placeholder="مثال: علي" /></div>
-    <div class="field"><label>كلمة المرور *</label><input type="text" id="nePw" dir="ltr" style="text-align:left" placeholder="٤ خانات على الأقل، حروف وأرقام" /></div>
+    <h3>إضافة موظف جديد لـ ${SETTINGS.name}</h3>
+    <div class="field"><label>اسم الموظف الثنائي *</label><input type="text" id="neName" placeholder="علي أحمد" /></div>
+    <div class="field"><label>رمز مرور الحساب (4 أرقام) *</label><input type="text" id="nePw" dir="ltr" style="text-align:left" placeholder="1234" /></div>
     <p class="field-error" id="neError"></p>
-    <button class="send-btn" id="neSubmit" style="background:linear-gradient(135deg,var(--o-green),#2f8f63);box-shadow:none">إضافة الموظف</button>
+    <button class="send-btn" id="neSubmit" style="background:linear-gradient(135deg,var(--o-green),#2f8f63);box-shadow:none">حفظ الموظف في النظام</button>
   `;
 }
 function openAddEmployeeForm(){
@@ -2650,13 +2292,13 @@ function openAddEmployeeForm(){
       const name = document.getElementById('neName')?.value.trim() || '';
       const pw = document.getElementById('nePw')?.value.trim() || '';
       const errEl = document.getElementById('neError');
-      if (!name){ if (errEl) errEl.textContent = 'اكتب اسم الموظف'; return; }
-      if (pw.length < 4){ if (errEl) errEl.textContent = 'كلمة المرور يجب أن تكون ٤ خانات على الأقل'; return; }
+      if (!name){ if (errEl) errEl.textContent = 'الرجاء كتابة اسم الموظف'; return; }
+      if (pw.length < 4){ if (errEl) errEl.textContent = 'رمز المرور يجب ألا يقل عن 4 أرقام'; return; }
       const newId = Math.max(0, ...EMPLOYEES.map(e=>e.id)) + 1;
       EMPLOYEES.push({id:newId, name, password:pw, active:true, lastLogin:null});
       hideSheet();
       renderEmployeeList();
-      toast('✅ تمت إضافة الموظف بنجاح');
+      toast('✅ تم تسجيل الحساب بنجاح وعمل التزامن الخلفي');
       fsSaveConfigDebounced();
     });
   });
@@ -2693,26 +2335,25 @@ function hideLoading(){
   setTimeout(()=>ls.remove(), 320);
 }
 
-window.addEventListener('online',  ()=>{ const b=document.getElementById('connBadge'); if(b){ b.textContent='☁️ متصل'; b.className='conn-badge conn-online'; setTimeout(()=>b.className='conn-badge',3000); } });
-window.addEventListener('offline', ()=>{ const b=document.getElementById('connBadge'); if(b){ b.textContent='⚡ بدون إنترنت — البيانات محفوظة محلياً'; b.className='conn-badge conn-offline'; } });
+window.addEventListener('online',  ()=>{ const b=document.getElementById('connBadge'); if(b){ b.textContent='☁️ متصل أونلاين'; b.className='conn-badge conn-online'; setTimeout(()=>b.className='conn-badge',3000); } });
+window.addEventListener('offline', ()=>{ const b=document.getElementById('connBadge'); if(b){ b.textContent='⚡ بدون إنترنت — الحفظ محلي نشط'; b.className='conn-badge conn-offline'; } });
 
 /* ------------------------------------------------------------------
-   الإقلاع السريع والآمن (Offline-First):
-   ١) تحميل localStorage فوراً لكسر جدار شاشة التحميل اللانهائية في أقل من 100ms.
-   ٢) محاصرة وظائف الإقلاع بـ try-catch لمنع توقف الشاشة في حال فشل أي عنصر.
+   آلية الإقلاع السريع الفوري (Offline-First):
+   ١) شحن وحقن الـ localStorage مباشرة لتخطي شاشة التحميل في أقل من 50ms.
+   ٢) عزل الأخطاء لضمان عدم تعليق واجهة العميل العراقي تحت أي ظرف لشبكة الإنترنت.
 ------------------------------------------------------------------ */
 (async()=>{
   try {
-    // تحميل البيانات المحلية المخزنة وفتح الواجهة مباشرة دون انتظار السيرفر
     loadArchive();
     hideLoading();
     startApp();
   } catch(e) {
-    console.error('[تموز] خطأ في الإقلاع الفوري ولكن تم تجاوز شاشة التحميل:', e.message);
-    hideLoading(); // ضمان إخفاء الشاشة تحت أي ظرف
+    console.error('[تموز] تخطي شاشة الانتظار والإقلاع الفوري الآمن:', e.message);
+    hideLoading();
   }
 
-  // مزامنة Firebase بالكامل في الخلفية لضمان عدم توقف تجربة العميل
+  // مزامنة وربط سحابي كامل مع Firebase Firestore بالخلفية دون حظر واجهة المستخدم
   try{
     await fsLoadAll();
     firebaseReady = true;
@@ -2725,10 +2366,9 @@ window.addEventListener('offline', ()=>{ const b=document.getElementById('connBa
     applyFeatures();
     startRealtimeListeners();
   }catch(e){
-    console.warn('[تموز] مزامنة Firebase الخلفية:', e.message);
+    console.warn('[تموز] العمل بالوضع المحلي المسرع — مزامنة Firebase مؤجلة:', e.message);
   }
 })();
 </script>
 </body>
 </html>
-
