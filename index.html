@@ -8,44 +8,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Lalezar&family=El+Messiri:wght@600;700&family=Reem+Kufi:wght@600;700&family=Cairo:wght@500;600;700;800&family=Almarai:wght@400;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet" />
-
-<!-- ======= Firebase SDK (v10 Modular CDN) ======= -->
-<script type="module">
-/* ══════════════════════════════════════════════════════
-   🔥 FIREBASE CONFIG — ضع هنا بيانات مشروعك من Firebase
-   firebaseConfig.js أو انسخها مباشرة بعد إنشاء المشروع
-   ══════════════════════════════════════════════════════ */
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import {
-  getFirestore, doc, collection,
-  setDoc, getDoc, getDocs, addDoc, updateDoc, deleteDoc,
-  onSnapshot, query, orderBy, serverTimestamp
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-/* ─── ✏️ ضع بيانات Firebase هنا ─── */
-const firebaseConfig = {
-  apiKey:            "AIzaSyBT_LwbhpFBLcLV2siytaBhDOhXtz88xIs",
-  authDomain:        "tamozmenu.firebaseapp.com",
-  projectId:         "tamozmenu",
-  storageBucket:     "tamozmenu.firebasestorage.app",
-  messagingSenderId: "45224085821",
-  appId:             "1:45224085821:web:4a4134c23e5215f49b5d54"
-};
-/* ─────────────────────────────────── */
-
-const fbApp = initializeApp(firebaseConfig);
-const db    = getFirestore(fbApp);
-
-/* ══ نجعل Firebase متاحاً للكود الرئيسي (non-module) ══ */
-window.__fb = {
-  db, doc, collection,
-  setDoc, getDoc, getDocs, addDoc, updateDoc, deleteDoc,
-  onSnapshot, query, orderBy, serverTimestamp
-};
-
-/* ══ نُعلم الكود الرئيسي أن Firebase جاهز ══ */
-window.dispatchEvent(new Event('firebase-ready'));
-</script>
 <style>
 :root{
   --c-bg:#f7ecd8; --c-ink:#15302b; --c-ink-soft:#1d3d36;
@@ -261,6 +223,10 @@ body.mode-dark .brand small{color:var(--o-muted)}
 .editor-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:.6rem}
 .add-item-btn{display:flex;align-items:center;gap:.4rem;background:var(--o-green);color:#06140d;font-weight:700;font-size:.8rem;padding:.55rem 1rem;border-radius:8px}
 .editor-row{display:flex;align-items:center;gap:.8rem;padding:.8rem;background:var(--o-panel);border:1px solid var(--o-line);border-radius:var(--radius-sm);margin-bottom:.6rem}
+.cat-row{display:flex;align-items:center;gap:.8rem;padding:.7rem .9rem;background:var(--o-panel);border:1px solid var(--o-line);border-radius:var(--radius-sm);margin-bottom:.5rem}
+.cat-row-icon{font-size:1.1rem;flex-shrink:0}
+.cat-row-name{flex:1;font-size:.86rem;font-weight:700}
+.cat-row-count{font-size:.72rem;color:var(--o-muted);background:var(--o-panel-2);padding:.2rem .6rem;border-radius:999px;flex-shrink:0}
 .editor-emoji{font-size:1.4rem;width:36px;height:36px;text-align:center;flex-shrink:0;border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:var(--o-panel-2)}
 .editor-emoji img{width:100%;height:100%;object-fit:cover}
 .editor-info{flex:1;min-width:0}
@@ -292,20 +258,38 @@ body.mode-dark .brand small{color:var(--o-muted)}
 .toggle-row{display:flex;align-items:center;justify-content:space-between;max-width:420px;background:var(--o-panel-2);border:1px solid var(--o-line);border-radius:var(--radius-sm);padding:.8rem 1rem}
 .toggle-row span{font-size:.85rem;font-weight:700}
 
-.dev-design-row{margin-bottom:1.1rem;max-width:420px}
-.dev-design-row label{display:block;font-size:.82rem;font-weight:700;margin-bottom:.4rem}
+.dev-design-row{margin-bottom:1.1rem;max-width:480px}
+.dev-design-row label{display:block;font-size:.82rem;font-weight:700;margin-bottom:.5rem}
 .dev-design-row select{width:100%;padding:.6rem .8rem;border-radius:8px;border:1px solid var(--o-line);background:var(--o-panel-2);color:var(--o-ink);font-size:.88rem}
-.dev-radius-options{display:flex;gap:.6rem;flex-wrap:wrap}
-.radius-opt{flex:1;min-width:110px;padding:.7rem .6rem;border-radius:8px;border:1.5px solid var(--o-line);background:var(--o-panel-2);color:var(--o-muted);font-size:.8rem;font-weight:700}
-.radius-opt.active{border-color:var(--o-green);color:var(--o-green);background:rgba(93,220,151,.1)}
+.dev-color-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.7rem}
+.dev-color-item{display:flex;align-items:center;gap:.6rem;background:var(--o-panel-2);border:1px solid var(--o-line);border-radius:8px;padding:.5rem .7rem}
+.dev-color-item input[type=color]{width:34px;height:34px;border:1px solid var(--o-line);border-radius:6px;background:none;padding:1px;cursor:pointer;flex-shrink:0}
+.dev-color-item span{font-size:.76rem;color:var(--o-muted)}
+.dev-radius-grid{display:flex;gap:.7rem;flex-wrap:wrap}
+.dev-radius-item{flex:1;min-width:100px;display:flex;flex-direction:column;gap:.4rem;background:var(--o-panel-2);border:1px solid var(--o-line);border-radius:8px;padding:.6rem .7rem}
+.dev-radius-item span{font-size:.74rem;color:var(--o-muted)}
+.dev-radius-item input{width:100%;padding:.4rem .5rem;border-radius:6px;border:1px solid var(--o-line);background:var(--o-panel);color:var(--o-ink);font-size:.88rem;direction:ltr;text-align:center}
 .dev-feature-row{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.7rem 0;border-bottom:1px dashed var(--o-line)}
 .dev-feature-row:last-child{border-bottom:none}
 .dev-feature-row span{font-size:.85rem}
 
 .sample-flag{display:inline-flex;align-items:center;gap:.4rem;font-size:.7rem;color:var(--o-amber);background:rgba(240,167,60,.12);border:1px solid rgba(240,167,60,.3);padding:.3rem .7rem;border-radius:999px;margin-top:1rem}
+@keyframes _spin{to{transform:rotate(360deg)}}
+.conn-badge{position:fixed;bottom:14px;right:12px;font-size:.72rem;font-weight:700;padding:.3rem .7rem;border-radius:999px;z-index:80}
+.conn-online{background:rgba(93,220,151,.18);color:var(--o-green);border:1px solid rgba(93,220,151,.35)}
+.conn-offline{background:rgba(240,167,60,.18);color:var(--o-amber);border:1px solid rgba(240,167,60,.35)}
 
 /* image upload form bits */
 .img-drop{border:2px dashed var(--c-line);border-radius:var(--radius-sm);padding:1.2rem;text-align:center;font-size:.82rem;color:var(--c-muted);cursor:pointer}
+/* ---- edit-item sheet ---- */
+.edit-tags-row{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.4rem}
+.edit-tag-btn{font-size:.72rem;font-weight:700;padding:.25rem .65rem;border-radius:999px;border:1px solid var(--c-line);background:var(--c-panel-2);color:var(--c-muted);cursor:pointer}
+.edit-tag-btn.active{background:var(--c-saffron);border-color:var(--c-saffron);color:#fff}
+/* ---- add-category sheet ---- */
+.cat-icon-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:.4rem;margin-top:.5rem}
+.cat-icon-btn{aspect-ratio:1;border-radius:9px;background:var(--c-panel-2);border:1.5px solid var(--c-line);font-size:1.3rem;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.cat-icon-btn.active{border-color:var(--c-saffron);background:rgba(232,146,60,.12)}
+
 .img-preview{width:80px;height:80px;border-radius:12px;overflow:hidden;margin:0 auto .6rem;background:var(--c-panel-2);display:flex;align-items:center;justify-content:center;font-size:2rem}
 .img-preview img{width:100%;height:100%;object-fit:cover}
 .emoji-pick-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:.4rem;margin-top:.5rem}
@@ -378,7 +362,7 @@ body.mode-dark .brand small{color:var(--o-muted)}
     <div class="dash-head">
       <span class="eyebrow">وضع الموظف</span>
       <h2 id="empWelcome">أهلاً</h2>
-      <p>هنا فقط الطلبيات التي تحتاج تجهيزاً — لا أسعار ولا إعدادات</p>
+      <p>جهّز الطلبيات، حدّث حالتها، واطبع الفاتورة لكل طلب — لا أسعار ولا إعدادات هنا</p>
     </div>
     <div class="orders-head">
       <p style="font-size:.84rem;color:var(--o-muted);margin:0">كل طلب جديد يظهر هنا فوراً</p>
@@ -464,8 +448,16 @@ body.mode-dark .brand small{color:var(--o-muted)}
     <div class="owner-panel" id="panel-menu" style="display:none">
       <div class="editor-head">
         <p style="font-size:.84rem;color:var(--o-muted);margin:0">بدّل أي سعر، أطفئ طبقاً نفد، أو أضف طبقاً جديداً بصورة حقيقية</p>
-        <button class="add-item-btn" id="addItemBtn">➕ إضافة عنصر جديد</button>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+          <button class="add-item-btn" id="addCatBtn" style="background:var(--o-amber);color:#1a1000">🏷️ تصنيف جديد</button>
+          <button class="add-item-btn" id="addItemBtn">➕ إضافة عنصر جديد</button>
+        </div>
       </div>
+
+      <div class="settings-section-title">التصنيفات</div>
+      <div id="categoryManageList" style="margin-bottom:1.4rem"></div>
+
+      <div class="settings-section-title">كل العناصر</div>
       <div id="editorList"></div>
     </div>
 
@@ -573,7 +565,7 @@ body.mode-dark .brand small{color:var(--o-muted)}
 
     <div class="panel" style="margin-bottom:1rem">
       <h4>تصميم النظام — حرية كاملة</h4>
-      <p style="font-size:.8rem;color:var(--o-muted);margin-bottom:1rem">يطبَّق فوراً على واجهة الزبون بالكامل — لا حاجة لإعادة تحميل الصفحة</p>
+      <p style="font-size:.8rem;color:var(--o-muted);margin-bottom:1rem">يطبَّق فوراً على واجهة الزبون بالكامل — لا حاجة لإعادة تحميل الصفحة. غيّر أي قيمة بحرية تامة</p>
 
       <div class="dev-design-row">
         <label>خط النصوص العام</label>
@@ -583,14 +575,27 @@ body.mode-dark .brand small{color:var(--o-muted)}
         <label>خط العناوين الكبيرة</label>
         <select id="devDisplayFont"></select>
       </div>
+
       <div class="dev-design-row">
-        <label>شكل الزوايا</label>
-        <div class="dev-radius-options" id="devRadiusOptions">
-          <button type="button" class="radius-opt" data-radius="sharp">حادة</button>
-          <button type="button" class="radius-opt" data-radius="rounded">دائرية متوسطة</button>
-          <button type="button" class="radius-opt" data-radius="pill">دائرية كاملة</button>
+        <label>ألوان الواجهة (حرية كاملة RGB)</label>
+        <div class="dev-color-grid">
+          <div class="dev-color-item"><input type="color" id="devBgColor" /><span>خلفية الصفحة</span></div>
+          <div class="dev-color-item"><input type="color" id="devPanelColor" /><span>خلفية البطاقات</span></div>
+          <div class="dev-color-item"><input type="color" id="devPanel2Color" /><span>خلفية ثانوية</span></div>
+          <div class="dev-color-item"><input type="color" id="devInkColor" /><span>لون النص</span></div>
         </div>
       </div>
+
+      <div class="dev-design-row">
+        <label>استدارة الزوايا (أي قيمة بالبكسل من 0 إلى 60)</label>
+        <div class="dev-radius-grid">
+          <div class="dev-radius-item"><span>كبيرة</span><input type="number" id="devRadiusLg" min="0" max="60" /></div>
+          <div class="dev-radius-item"><span>متوسطة</span><input type="number" id="devRadiusMd" min="0" max="60" /></div>
+          <div class="dev-radius-item"><span>صغيرة</span><input type="number" id="devRadiusSm" min="0" max="60" /></div>
+        </div>
+      </div>
+
+      <button type="button" class="print-btn-sm" id="devResetThemeBtn" style="margin-top:.4rem">↺ استعادة التصميم الافتراضي</button>
     </div>
 
     <div class="panel" style="margin-bottom:1rem">
@@ -615,9 +620,53 @@ body.mode-dark .brand small{color:var(--o-muted)}
   <div id="sheetBody"></div>
 </div>
 <div class="toast" id="toast"></div>
+<div id="loadingScreen" style="position:fixed;inset:0;background:#15302b;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;font-family:'Tajawal',sans-serif;color:#fdf6e8;gap:.8rem">
+  <div style="font-size:3rem">🌴</div>
+  <div style="font-size:1.3rem;font-weight:800">نظام تموز</div>
+  <div style="width:32px;height:32px;border:3px solid rgba(255,255,255,.2);border-top-color:#e8923c;border-radius:50%;animation:_spin .8s linear infinite"></div>
+  <div style="font-size:.82rem;opacity:.7" id="loadingMsg">جاري التهيئة...</div>
+</div>
+<div class="conn-badge" id="connBadge"></div>
 <div id="receiptArea" class="receipt-print"></div>
 
-<script>
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import {
+  getFirestore, collection, doc, getDoc, getDocs, setDoc,
+  onSnapshot, query, orderBy, limit, enableIndexedDbPersistence
+} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey:           "AIzaSyBT_LwbhpFBLcLV2siytaBhDOhXtz88xIs",
+  authDomain:       "tamozmenu.firebaseapp.com",
+  projectId:        "tamozmenu",
+  storageBucket:    "tamozmenu.firebasestorage.app",
+  messagingSenderId:"45224085821",
+  appId:            "1:45224085821:web:4a4134c23e5215f49b5d54",
+  measurementId:    "G-K4J61DFMP5"
+};
+
+const fbApp = initializeApp(firebaseConfig);
+db = getFirestore(fbApp);
+
+// دعم العمل بدون إنترنت (IndexedDB cache)
+enableIndexedDbPersistence(db).catch(()=>{});
+
+CONFIG_REF    = doc(db, 'config',     'main');
+ORDERS_COL    = collection(db, 'orders');
+COMPLAINTS_COL= collection(db, 'complaints');
+
+// نُعرّض دوال Firestore على window حتى تستخدمها دوال الـ async في الأسفل
+window._fsGetDoc  = getDoc;
+window._fsGetDocs = getDocs;
+window._fsSetDoc  = setDoc;
+window._fsDoc     = doc;
+window._fsQuery   = query;
+window._fsOrderBy = orderBy;
+window._fsLimit   = limit;
+window._fsOnSnapshot = onSnapshot;
+// Firebase جاهز — التحميل الفعلي يحدث في الـ IIFE أسفل الصفحة
+
 /* ============================================================ STATE ============================================================ */
 let MENU = [
   {id:1, cat:'مشاوي', name:'تكة لحم مشوي', price:18000, emoji:'🍖', image:null, desc:'قطع لحم طرية متبّلة، تُشوى على الفحم وتُقدّم مع صمونة وسلطة', tags:['الأكثر طلباً'], available:true},
@@ -638,7 +687,6 @@ let MENU = [
 let SETTINGS = {
   name:'نخلة الذهب', tagline:'مطاعم ومشاوي عراقية أصيلة', wa:'9647000000000',
   instagram:'', facebook:'', hours:'٤ عصراً - ١٢ منتصف الليل', address:'', mapsUrl:'',
-  businessType:'restaurant',
   brandKey:'saffron', customHex:null, minOrder:0, deliveryFee:0,
   pin:'owner123', soundEnabled:true,
   loyaltyThreshold:5, loyaltyReward:'حلى مجاني'
@@ -667,20 +715,14 @@ const SWATCHES = [
 ];
 const CAT_ICONS = {
   'مشاوي':'🔥','أطباق رئيسية':'🍽️','مقبلات':'🥗','مشروبات':'🥤','حلويات':'🍰',
-  'شقق':'🏠','منازل':'🏡','أراضٍ':'🗺️','محلات تجارية':'🏬',
-  'رجالي':'👔','حريمي':'👗','أطفال':'🧒',
-  'باقات':'📦','خدمات':'🛠️',
 };
-function catIcon(cat){ return CAT_ICONS[cat] || '🏷️'; }
+function catIcon(cat){ return CAT_ICONS[cat] || '🍴'; }
 
-/* ---- نوع النشاط مثبّت على "مطعم" ---- */
-const BUSINESS_TYPE_RESTAURANT = {
-  item:'طبق', itemPlural:'أطباق', catalogSub:'امسح وأطلب · توصيل مباشر',
-  orderNoun:'طلب', orderTypes:['توصيل للمنزل','استلام من المحل','طاولة رقم 1','طاولة رقم 2','طاولة رقم 3']
-};
-function bizType(){ return BUSINESS_TYPE_RESTAURANT; }
+/* ---- النظام مخصص حصراً لمطاعم وكافيهات — لا تبديل بين أنواع نشاط ---- */
+const RESTAURANT_LABELS = { item:'طبق', itemPlural:'أطباق', catalog:'القائمة', catalogSub:'امسح وأطلب · توصيل مباشر', action:'اطلب الآن', orderNoun:'طلب', orderTypes:['توصيل للمنزل','استلام من المحل','طاولة رقم 1','طاولة رقم 2','طاولة رقم 3'] };
+function bizType(){ return RESTAURANT_LABELS; }
 
-const EMOJI_CHOICES = ['🍽️','🍖','🍗','🍢','🍛','🍚','🍲','🥬','🥣','🥗','🍆','🍵','🥤','💧','🍰','🍕','🍔','🥪','🍟','🌯','🏠','🏡','🗺️','👔','👗','🧒','📦','🛠️','✨','⭐'];
+const EMOJI_CHOICES = ['🍽️','🍖','🍗','🍢','🍛','🍚','🍲','🥬','🥣','🥗','🍆','🍵','🥤','💧','🍰','🍕','🍔','🥪','🍟','🌯'];
 
 let cart = {};
 let activeCat = MENU[0].cat;
@@ -688,7 +730,7 @@ let searchTerm = '';
 let orderCounter = 100;
 let complaintCounter = 0;
 let sessionOrderCount = 0;
-let ORDERS = []; // archived locally on this device — see saveArchive()/loadArchive()
+let ORDERS = []; // مدعومة بـ Firestore — انظر fsSaveOrder() / fsLoadAll()
 let COMPLAINTS = [];
 let currentActorName = null;
 let currentMode = 'customer';
@@ -711,8 +753,13 @@ const FEATURE_LABELS = {
   deliveryRules:'حد أدنى للطلب ورسوم التوصيل', search:'شريط البحث للزبون',
 };
 
-/* ---- محرّك التصميم: يتحكم به المطوّر — خط النصوص، خط العناوين، ودرجة استدارة الزوايا ---- */
-let THEME = { bodyFont:'tajawal', displayFont:'lalezar', radius:'rounded' };
+/* ---- محرّك التصميم: حرية كاملة — خطوط، ألوان خام، وأي قيمة استدارة بالبكسل ---- */
+let THEME = {
+  bodyFont:'tajawal', displayFont:'lalezar',
+  radiusLg:20, radiusMd:14, radiusSm:9,
+  bgColor:'#f7ecd8', panelColor:'#ffffff', panel2Color:'#fff8ec', inkColor:'#15302b',
+};
+const DEFAULT_THEME = JSON.parse(JSON.stringify(THEME));
 const FONT_OPTIONS = {
   tajawal:{name:'Tajawal', stack:"'Tajawal',sans-serif"},
   cairo:{name:'Cairo', stack:"'Cairo',sans-serif"},
@@ -724,11 +771,6 @@ const DISPLAY_FONT_OPTIONS = {
   elmessiri:{name:'El Messiri', stack:"'El Messiri',sans-serif"},
   reemkufi:{name:'Reem Kufi', stack:"'Reem Kufi',sans-serif"},
   cairo:{name:'Cairo', stack:"'Cairo',sans-serif"},
-};
-const RADIUS_PRESETS = {
-  sharp:{lg:'4px', md:'4px', sm:'3px'},
-  rounded:{lg:'20px', md:'14px', sm:'9px'},
-  pill:{lg:'30px', md:'22px', sm:'16px'},
 };
 
 function fmt(n){ return n.toLocaleString('en-US') + ' د.ع'; }
@@ -750,308 +792,121 @@ function complaintsForDate(dateKey){ return COMPLAINTS.filter(c=>c.dateKey===dat
 function ordersForYear(y){ return ORDERS.filter(o=>yearKeyOf(o.dateKey)===y); }
 function complaintsForYear(y){ return COMPLAINTS.filter(c=>yearKeyOf(c.dateKey)===y); }
 
-/* ════════════════════════════════════════════════════════════════
-   🔥 FIREBASE PERSISTENCE LAYER
-   كل تغيير يحفَظ فوراً في Firebase Firestore — مشترك بين جميع
-   الأجهزة في الوقت الفعلي (Real-time). بنية المجموعات:
-     /config/settings       — إعدادات المحل
-     /config/security       — كلمات المرور (لا تُرسَل للزبون)
-     /config/features       — الميزات المفعَّلة
-     /config/theme          — إعدادات التصميم
-     /menu/{id}             — كل طبق وثيقة مستقلة
-     /employees/{id}        — الموظفون
-     /orders/{num}          — الطلبيات
-     /complaints/{num}      — الشكاوى
-   ════════════════════════════════════════════════════════════════ */
-
-let fbReady = false;
-
-/* ── مؤشر التحميل ── */
-function showLoading(msg){
-  let el = document.getElementById('fbLoader');
-  if (!el){
-    el = document.createElement('div');
-    el.id = 'fbLoader';
-    el.style.cssText = `position:fixed;inset:0;background:var(--c-bg);z-index:999;
-      display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;
-      font-family:var(--font-body);font-size:1rem;color:var(--c-ink);transition:opacity .4s`;
-    el.innerHTML = `<div style="font-size:2.5rem">🌴</div><div id="fbLoaderMsg">${msg||'جارٍ التحميل...'}</div>
-      <div style="width:48px;height:4px;background:var(--c-line);border-radius:4px;overflow:hidden">
-        <div id="fbLoaderBar" style="height:100%;background:var(--c-saffron);width:0%;transition:width .4s;border-radius:4px"></div></div>`;
-    document.body.appendChild(el);
-  }
-  document.getElementById('fbLoaderMsg').textContent = msg||'جارٍ التحميل...';
-  el.style.display = 'flex'; el.style.opacity = '1';
-}
-function setLoadingProgress(pct){ const b=document.getElementById('fbLoaderBar'); if(b) b.style.width=pct+'%'; }
-function hideLoading(){
-  const el = document.getElementById('fbLoader');
-  if(!el) return;
-  el.style.opacity='0';
-  setTimeout(()=>{ el.style.display='none'; },400);
-}
-
-/* ════════ SAVE: كتابة إلى Firebase ════════ */
-
-async function fbSaveSettings(){
-  if(!fbReady) return fallbackSave();
-  const {db,doc,setDoc} = window.__fb;
-  try{
-    await setDoc(doc(db,'config','settings'), SETTINGS);
-  }catch(e){ console.warn('fbSaveSettings failed:',e); fallbackSave(); }
-}
-
-async function fbSaveSecurity(){
-  if(!fbReady) return;
-  const {db,doc,setDoc} = window.__fb;
-  try{
-    await setDoc(doc(db,'config','security'), {
-      ownerPin: SETTINGS.pin,
-      devPassword: DEV_PASSWORD,
-    });
-  }catch(e){ console.warn('fbSaveSecurity failed:',e); }
-}
-
-async function fbSaveFeatures(){
-  if(!fbReady) return;
-  const {db,doc,setDoc} = window.__fb;
-  try{ await setDoc(doc(db,'config','features'), FEATURES); }
-  catch(e){ console.warn('fbSaveFeatures:',e); }
-}
-
-async function fbSaveTheme(){
-  if(!fbReady) return;
-  const {db,doc,setDoc} = window.__fb;
-  try{ await setDoc(doc(db,'config','theme'), THEME); }
-  catch(e){ console.warn('fbSaveTheme:',e); }
-}
-
-async function fbSaveMenu(){
-  if(!fbReady) return fallbackSave();
-  const {db,doc,setDoc} = window.__fb;
-  try{
-    for(const item of MENU){
-      const d = {...item};
-      await setDoc(doc(db,'menu', String(item.id)), d);
-    }
-  }catch(e){ console.warn('fbSaveMenu:',e); fallbackSave(); }
-}
-
-async function fbSaveMenuItemPatch(id, patch){
-  if(!fbReady) return fallbackSave();
-  const {db,doc,setDoc,updateDoc,getDoc} = window.__fb;
-  try{
-    const ref = doc(db,'menu',String(id));
-    const snap = await getDoc(ref);
-    if(snap.exists()){
-      await updateDoc(ref, patch);
-    } else {
-      /* وثيقة جديدة */
-      await setDoc(ref, patch);
-    }
-  }catch(e){ console.warn('fbSaveMenuItemPatch:',e); fallbackSave(); }
-}
-
-async function fbDeleteMenuItem(id){
-  if(!fbReady) return;
-  const {db,doc,deleteDoc} = window.__fb;
-  try{ await deleteDoc(doc(db,'menu',String(id))); }
-  catch(e){ console.warn('fbDeleteMenuItem:',e); }
-}
-
-async function fbSaveEmployee(emp){
-  if(!fbReady) return;
-  const {db,doc,setDoc} = window.__fb;
-  try{ await setDoc(doc(db,'employees',String(emp.id)), emp); }
-  catch(e){ console.warn('fbSaveEmployee:',e); }
-}
-
-async function fbDeleteEmployee(id){
-  if(!fbReady) return;
-  const {db,doc,deleteDoc} = window.__fb;
-  try{ await deleteDoc(doc(db,'employees',String(id))); }
-  catch(e){ console.warn('fbDeleteEmployee:',e); }
-}
-
-async function fbSaveOrder(order){
-  if(!fbReady) return fallbackSave();
-  const {db,doc,setDoc} = window.__fb;
-  try{
-    const d = {...order, handledBy: order.handledBy||null};
-    await setDoc(doc(db,'orders',String(order.num)), d);
-  }catch(e){ console.warn('fbSaveOrder:',e); fallbackSave(); }
-}
-
-async function fbUpdateOrderStatus(order){
-  if(!fbReady) return fallbackSave();
-  const {db,doc,updateDoc} = window.__fb;
-  try{
-    await updateDoc(doc(db,'orders',String(order.num)), {
-      statusIdx: order.statusIdx,
-      handledBy: order.handledBy||null
-    });
-  }catch(e){ console.warn('fbUpdateOrderStatus:',e); fallbackSave(); }
-}
-
-async function fbSaveComplaint(complaint){
-  if(!fbReady) return fallbackSave();
-  const {db,doc,setDoc} = window.__fb;
-  try{
-    await setDoc(doc(db,'complaints',String(complaint.num)), complaint);
-  }catch(e){ console.warn('fbSaveComplaint:',e); fallbackSave(); }
-}
-
-/* ════════ LOAD: قراءة من Firebase عند أول تشغيل ════════ */
-
-async function fbLoadAll(){
-  const {db, doc, collection, getDoc, getDocs, query, orderBy} = window.__fb;
-  showLoading('جارٍ تحميل بيانات المحل...');
-  setLoadingProgress(5);
-
-  try{
-    /* 1 — الإعدادات */
-    const sSnap = await getDoc(doc(db,'config','settings'));
-    if(sSnap.exists()){
-      const d = sSnap.data();
-      Object.assign(SETTINGS, d);
-    } else {
-      /* أول تشغيل — احفظ الإعدادات الافتراضية */
-      await fbSaveSettings();
-    }
-    setLoadingProgress(20);
-
-    /* 2 — الأمان */
-    const secSnap = await getDoc(doc(db,'config','security'));
-    if(secSnap.exists()){
-      const sec = secSnap.data();
-      if(sec.ownerPin)    SETTINGS.pin = sec.ownerPin;
-      if(sec.devPassword) DEV_PASSWORD = sec.devPassword;
-    } else {
-      await fbSaveSecurity();
-    }
-    setLoadingProgress(30);
-
-    /* 3 — الميزات */
-    const featSnap = await getDoc(doc(db,'config','features'));
-    if(featSnap.exists()) Object.assign(FEATURES, featSnap.data());
-    else await fbSaveFeatures();
-    setLoadingProgress(40);
-
-    /* 4 — التصميم */
-    const themeSnap = await getDoc(doc(db,'config','theme'));
-    if(themeSnap.exists()) Object.assign(THEME, themeSnap.data());
-    else await fbSaveTheme();
-    setLoadingProgress(50);
-
-    /* 5 — القائمة */
-    const menuSnap = await getDocs(collection(db,'menu'));
-    if(!menuSnap.empty){
-      MENU = [];
-      menuSnap.forEach(d=>{ MENU.push({...d.data(), id: parseInt(d.id)||d.data().id}); });
-      MENU.sort((a,b)=> (a.id||0)-(b.id||0));
-    } else {
-      await fbSaveMenu();
-    }
-    setLoadingProgress(65);
-
-    /* 6 — الموظفون */
-    const empSnap = await getDocs(collection(db,'employees'));
-    if(!empSnap.empty){
-      EMPLOYEES = [];
-      empSnap.forEach(d=>{ EMPLOYEES.push({...d.data(), id: parseInt(d.id)||d.data().id}); });
-      EMPLOYEES.sort((a,b)=>(a.id||0)-(b.id||0));
-    } else {
-      for(const e of EMPLOYEES) await fbSaveEmployee(e);
-    }
-    setLoadingProgress(80);
-
-    /* 7 — الطلبيات */
-    const ordSnap = await getDocs(query(collection(db,'orders'), orderBy('num','desc')));
-    ORDERS = [];
-    ordSnap.forEach(d=>{ ORDERS.push(d.data()); });
-    if(ORDERS.length) orderCounter = Math.max(...ORDERS.map(o=>o.num||0));
-    setLoadingProgress(90);
-
-    /* 8 — الشكاوى */
-    const cpSnap = await getDocs(query(collection(db,'complaints'), orderBy('num','desc')));
-    COMPLAINTS = [];
-    cpSnap.forEach(d=>{ COMPLAINTS.push(d.data()); });
-    if(COMPLAINTS.length) complaintCounter = Math.max(...COMPLAINTS.map(c=>c.num||0));
-    setLoadingProgress(100);
-
-    fbReady = true;
-    subscribeRealtime();
-
-  }catch(err){
-    console.error('fbLoadAll error:', err);
-    /* إذا فشل Firebase نكمل بالـ localStorage كـ fallback */
-    loadArchiveFallback();
-  }
-
-  /* تهيئة الواجهة بعد التحميل */
-  postLoadInit();
-  setTimeout(hideLoading, 600);
-}
-
-/* ════════ REALTIME: الاستماع للتغييرات من أجهزة أخرى ════════ */
+/* ---- local archive (per-device persistence) ----
+   هذا تخزين على هذا الجهاز/المتصفح فقط — ليس قاعدة بيانات مركزية مشتركة بين عدة أجهزة.
+   إن تعذّر الوصول للتخزين (وضع التصفح الخاص، أو معاينة داخل بيئة مقيّدة) يستمر النظام
+   بالعمل بشكل طبيعي في الذاكرة المؤقتة فقط دون أي عطل. */
+/* ============================================================ FIREBASE / FIRESTORE ============================================================ */
+let db, auth, CONFIG_REF, ORDERS_COL, COMPLAINTS_COL;
 let unsubOrders = null;
-let unsubComplaints = null;
+let configSaveTimer = null;
+let firebaseReady = false;
 
-function subscribeRealtime(){
-  if(!fbReady) return;
-  const {db, collection, query, orderBy, onSnapshot} = window.__fb;
+function menuForFirestore(){
+  // الصور base64 كبيرة الحجم — تُخزَّن محلياً فقط وتُحذف من Firestore
+  return MENU.map(({image, ...rest}) => ({...rest, image: null}));
+}
 
-  /* طلبيات — تحديث فوري لجميع الأجهزة */
-  unsubOrders = onSnapshot(
-    query(collection(db,'orders'), orderBy('num','desc')),
-    (snap) => {
-      ORDERS = [];
-      snap.forEach(d=>{ ORDERS.push(d.data()); });
-      if(ORDERS.length) orderCounter = Math.max(...ORDERS.map(o=>o.num||0));
-      /* إعادة رسم ما هو ظاهر حالياً */
-      if(currentMode === 'owner')    renderOrderFeedInto('orderFeedOwner');
-      if(currentMode === 'employee') renderOrderFeedInto('orderFeedEmployee');
+async function fsLoadAll(){
+  try{
+    const [cfgSnap, ordersSnap, complaintsSnap] = await Promise.all([
+      window._fsGetDoc(CONFIG_REF),
+      window._fsGetDocs(window._fsQuery(ORDERS_COL, window._fsOrderBy('num','desc'), window._fsLimit(500))),
+      window._fsGetDocs(window._fsQuery(COMPLAINTS_COL, window._fsOrderBy('num','desc'), window._fsLimit(200)))
+    ]);
+    if (cfgSnap.exists()){
+      const d = cfgSnap.data();
+      if (d.settings)  Object.assign(SETTINGS, d.settings);
+      if (d.menu)      MENU = d.menu.map(m => ({...m, image:null}));
+      if (d.employees) EMPLOYEES = d.employees;
+      if (d.features)  Object.assign(FEATURES, d.features);
+      if (d.theme)     Object.assign(THEME, d.theme);
+      if (d.catIcons)  Object.assign(CAT_ICONS, d.catIcons);
+      if (d.devPassword) DEV_PASSWORD = d.devPassword;
+      if (typeof d.orderCounter    === 'number') orderCounter    = d.orderCounter;
+      if (typeof d.complaintCounter === 'number') complaintCounter = d.complaintCounter;
+    }
+    ORDERS = ordersSnap.docs.map(d=>d.data()).sort((a,b)=>b.num-a.num);
+    COMPLAINTS = complaintsSnap.docs.map(d=>d.data()).sort((a,b)=>b.num-a.num);
+  }catch(e){ console.warn('[تموز] Firestore load:', e.message); }
+}
+
+async function fsSaveConfig(){
+  saveArchive(); // حفظ فوري محلي دائماً
+  if (!firebaseReady) return;
+  try{
+    await window._fsSetDoc(CONFIG_REF, {
+      settings:SETTINGS, menu:menuForFirestore(), employees:EMPLOYEES,
+      features:FEATURES, theme:THEME, devPassword:DEV_PASSWORD,
+      catIcons:CAT_ICONS,
+      orderCounter, complaintCounter
+    }, {merge:true});
+  }catch(e){ console.warn('[تموز] config save:', e.message); }
+}
+
+function fsSaveConfigDebounced(){
+  clearTimeout(configSaveTimer);
+  configSaveTimer = setTimeout(fsSaveConfig, 900);
+}
+
+async function fsSaveOrder(order){
+  if (!firebaseReady) return;
+  try{
+    await window._fsSetDoc(window._fsDoc(db,'orders',String(order.num)), order, {merge:true});
+  }catch(e){ console.warn('[تموز] order save:', e.message); }
+}
+
+async function fsSaveComplaint(complaint){
+  if (!firebaseReady) return;
+  try{
+    await window._fsSetDoc(window._fsDoc(db,'complaints',String(complaint.num)), complaint, {merge:true});
+  }catch(e){ console.warn('[تموز] complaint save:', e.message); }
+}
+
+function startRealtimeListeners(){
+  if (unsubOrders) unsubOrders();
+  unsubOrders = window._fsOnSnapshot(
+    window._fsQuery(ORDERS_COL, window._fsOrderBy('num','desc'), window._fsLimit(500)),
+    snap => {
+      ORDERS = snap.docs.map(d=>d.data()).sort((a,b)=>b.num-a.num);
+      renderOrderFeedInto('orderFeedOwner');
+      renderOrderFeedInto('orderFeedEmployee');
       renderStatGrid();
-      /* تنبيه صوتي إذا وصل طلب جديد */
-      if(currentMode === 'owner' || currentMode === 'employee') playAlertSound();
     },
-    (err) => console.warn('orders snapshot error:', err)
-  );
-
-  /* شكاوى */
-  unsubComplaints = onSnapshot(
-    query(collection(db,'complaints'), orderBy('num','desc')),
-    (snap) => {
-      COMPLAINTS = [];
-      snap.forEach(d=>{ COMPLAINTS.push(d.data()); });
-      if(COMPLAINTS.length) complaintCounter = Math.max(...COMPLAINTS.map(c=>c.num||0));
-    },
-    (err) => console.warn('complaints snapshot error:', err)
+    err => console.warn('[تموز] orders listener:', err.message)
   );
 }
 
-/* ════════ FALLBACK: localStorage عند انقطاع الشبكة ════════ */
-const ARCHIVE_KEY = 'tamoozSystemArchive_v1';
-function fallbackSave(){
+const ARCHIVE_KEY = 'tamoozArchive_v2';
+function saveArchive(){
   try{
-    localStorage.setItem(ARCHIVE_KEY, JSON.stringify({ORDERS, COMPLAINTS, orderCounter, complaintCounter}));
+    const snapshot = {SETTINGS, EMPLOYEES, FEATURES, THEME, MENU:menuForFirestore(), orderCounter, complaintCounter, DEV_PASSWORD, CAT_ICONS};
+    localStorage.setItem(ARCHIVE_KEY, JSON.stringify(snapshot));
   }catch(e){}
 }
-function loadArchiveFallback(){
+function loadArchive(){
   try{
     const raw = localStorage.getItem(ARCHIVE_KEY);
     if (!raw) return;
-    const data = JSON.parse(raw);
-    if (Array.isArray(data.ORDERS)) ORDERS = data.ORDERS;
-    if (Array.isArray(data.COMPLAINTS)) COMPLAINTS = data.COMPLAINTS;
-    if (typeof data.orderCounter === 'number') orderCounter = data.orderCounter;
-    if (typeof data.complaintCounter === 'number') complaintCounter = data.complaintCounter;
+    const d = JSON.parse(raw);
+    if (d.settings)    Object.assign(SETTINGS, d.settings);
+    if (d.SETTINGS)    Object.assign(SETTINGS, d.SETTINGS);
+    if (d.menu)        MENU = d.menu.map(m=>({...m,image:null}));
+    if (d.MENU)        MENU = d.MENU.map(m=>({...m,image:null}));
+    if (d.employees)   EMPLOYEES = d.employees;
+    if (d.EMPLOYEES)   EMPLOYEES = d.EMPLOYEES;
+    if (d.features)    Object.assign(FEATURES, d.features);
+    if (d.FEATURES)    Object.assign(FEATURES, d.FEATURES);
+    if (d.theme)       Object.assign(THEME, d.theme);
+    if (d.THEME)       Object.assign(THEME, d.THEME);
+    if (d.catIcons)    Object.assign(CAT_ICONS, d.catIcons);
+    if (d.CAT_ICONS)   Object.assign(CAT_ICONS, d.CAT_ICONS);
+    if (d.devPassword)  DEV_PASSWORD = d.devPassword;
+    if (d.DEV_PASSWORD) DEV_PASSWORD = d.DEV_PASSWORD;
+    if (typeof d.orderCounter    === 'number') orderCounter    = d.orderCounter;
+    if (typeof d.complaintCounter === 'number') complaintCounter = d.complaintCounter;
   }catch(e){}
 }
-
-/* الاسم القديم للتوافق مع أي كود يستدعيه */
-function saveArchive(){ fallbackSave(); }
-function loadArchive(){ /* لا شيء — يُحمَّل من Firebase */ }
 
 function applyBrandColor(key){
   const sw = SWATCHES.find(s=>s.key===key) || SWATCHES[0];
@@ -1066,10 +921,17 @@ function darkenHex(hex, percent){
   if (c.length === 3) c = c.split('').map(ch=>ch+ch).join('');
   const num = parseInt(c, 16);
   let r = (num>>16)&255, g=(num>>8)&255, b=num&255;
-  r = Math.max(0, Math.round(r*(1-percent)));
-  g = Math.max(0, Math.round(g*(1-percent)));
-  b = Math.max(0, Math.round(b*(1-percent)));
+  r = Math.min(255, Math.max(0, Math.round(r*(1-percent))));
+  g = Math.min(255, Math.max(0, Math.round(g*(1-percent))));
+  b = Math.min(255, Math.max(0, Math.round(b*(1-percent))));
   return '#' + [r,g,b].map(v=>v.toString(16).padStart(2,'0')).join('');
+}
+function hexToRgba(hex, alpha){
+  let c = hex.replace('#','');
+  if (c.length === 3) c = c.split('').map(ch=>ch+ch).join('');
+  const num = parseInt(c, 16);
+  const r = (num>>16)&255, g=(num>>8)&255, b=num&255;
+  return `rgba(${r},${g},${b},${alpha})`;
 }
 
 function applyCustomBrandColor(hex){
@@ -1368,14 +1230,15 @@ function submitOrder(){
   const order = {
     num: orderCounter,
     customerName: nameVal, customerPhone: phoneDigits, type: orderType, note,
-    time: nowStamp(), createdHour: new Date().getHours(), dateKey: todayKey(), statusIdx: 0, handledBy: null,
+    time: nowStamp(), createdHour: new Date().getHours(), dateKey: todayKey(), statusIdx: 0, handledBy: null, receivedAt: null,
     items: items.map(i=>({name:i.name, qty:i.qty, price:i.price})),
     subtotal, deliveryFee: fee, total: subtotal + fee
   };
   ORDERS.unshift(order);
   sessionOrderCount++;
-  fbSaveOrder(order);
-  saveArchive(); /* fallback */
+  fsSaveOrder(order);
+  fsSaveConfigDebounced();
+  saveArchive();
 
   playAlertSound();
   sendWhatsAppForOrder(order);
@@ -1428,7 +1291,7 @@ function orderCardHtml(order){
       <div class="order-meta">${order.customerName} · ${order.customerPhone||'-'} · ${order.type}</div>
       <div class="order-items">${itemsHtml}</div>
       ${order.note ? `<div class="order-note">📝 ${order.note}</div>` : ''}
-      ${order.handledBy ? `<div class="order-handled">✓ جهّزه: ${order.handledBy}</div>` : ''}
+      ${order.handledBy ? `<div class="order-handled">✓ استلمه: ${order.handledBy}${order.receivedAt ? ' · '+order.receivedAt : ''}</div>` : ''}
       <div class="order-bottom">
         <span class="status-badge status-${order.statusIdx}">${STATUS_LABELS[order.statusIdx]}</span>
         <span class="order-total">${fmt(order.total)}</span>
@@ -1451,8 +1314,8 @@ function renderOrderFeedInto(elId, ordersSubset){
       if (order && order.statusIdx < 3){
         order.statusIdx++;
         order.handledBy = currentActorName || order.handledBy;
-        fbUpdateOrderStatus(order);
-        saveArchive();
+        if (!order.receivedAt) order.receivedAt = nowStamp();
+        fsSaveOrder(order);
         renderOrderFeedInto(elId, ordersSubset);
         renderStatGrid();
         toast('✅ تم تحديث حالة الطلب');
@@ -1468,18 +1331,26 @@ function renderOrderFeedInto(elId, ordersSubset){
 function printOrderReceipt(num){
   const o = ORDERS.find(x=>x.num===num);
   if (!o) return;
+
+  // عند أول طباعة لهذا الطلب: سجّل من استلمه ومتى — حتى لو لم يحدّث حالته يدوياً بعد
+  if (!o.handledBy && currentActorName){ o.handledBy = currentActorName; }
+  if (!o.receivedAt){ o.receivedAt = nowStamp(); }
+  fsSaveOrder(o);
+  renderOrderFeedInto('orderFeedOwner');
+  renderOrderFeedInto('orderFeedEmployee');
+
   let html = `<div style="max-width:300px;margin:0 auto;font-family:Tajawal,sans-serif;font-size:13px;line-height:1.7;direction:rtl">`;
   html += `<div style="text-align:center;font-weight:800;font-size:17px">${SETTINGS.name}</div>`;
   if (SETTINGS.address) html += `<div style="text-align:center;font-size:11px">${SETTINGS.address}</div>`;
   html += `<div style="text-align:center;font-size:11px;margin-bottom:8px">واتساب: ${SETTINGS.wa}</div>`;
   html += `<div style="border-top:1px dashed #000;border-bottom:1px dashed #000;padding:6px 0;margin-bottom:6px">`;
-  html += `فاتورة طلب #${o.num}<br>الوقت: ${o.time}<br>الزبون: ${o.customerName} — ${o.customerPhone||''}<br>النوع: ${o.type}`;
+  html += `فاتورة طلب #${o.num}<br>وقت الطلب: ${o.time}<br>الزبون: ${o.customerName} — ${o.customerPhone||''}<br>النوع: ${o.type}`;
   html += `</div>`;
   o.items.forEach(i=>{ html += `<div style="display:flex;justify-content:space-between"><span>${i.name} ×${i.qty}</span><span>${fmt(i.price*i.qty)}</span></div>`; });
   if (o.deliveryFee>0) html += `<div style="display:flex;justify-content:space-between"><span>رسوم التوصيل</span><span>${fmt(o.deliveryFee)}</span></div>`;
   html += `<div style="border-top:1px dashed #000;margin-top:6px;padding-top:6px;display:flex;justify-content:space-between;font-weight:800"><span>الإجمالي</span><span>${fmt(o.total)}</span></div>`;
   if (o.note) html += `<div style="margin-top:6px;font-size:11px">ملاحظة: ${o.note}</div>`;
-  html += `<div style="margin-top:6px;font-size:11px">جهّزه: ${o.handledBy || '—'}</div>`;
+  html += `<div style="border-top:1px dashed #000;margin-top:8px;padding-top:6px;font-size:11px">استلمه: <strong>${o.handledBy || '—'}</strong><br>وقت الاستلام: ${o.receivedAt || '—'}</div>`;
   html += `<div style="text-align:center;margin-top:10px;font-size:11px">شكراً لطلبكم 🌴</div>`;
   html += `</div>`;
   document.getElementById('receiptArea').innerHTML = html;
@@ -1571,6 +1442,42 @@ function renderYearStats(){
 }
 
 /* ============================================================ OWNER: MENU EDITOR (incl. add / delete / image) ============================================================ */
+function renderCategoryManageList(){
+  const el = document.getElementById('categoryManageList');
+  const cats = getCats();
+  if (cats.length === 0){
+    el.innerHTML = `<p class="empty-note">لا توجد تصنيفات بعد</p>`;
+    return;
+  }
+  el.innerHTML = cats.map(c=>{
+    const n = MENU.filter(m=>m.cat===c).length;
+    return `
+      <div class="cat-row">
+        <span class="cat-row-icon">${catIcon(c)}</span>
+        <span class="cat-row-name">${c}</span>
+        <span class="cat-row-count">${n} عنصر</span>
+        <button class="del-btn" data-cat-del="${c}">🗑</button>
+      </div>`;
+  }).join('');
+  el.querySelectorAll('[data-cat-del]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const cat = btn.dataset.catDel;
+      const n = MENU.filter(m=>m.cat===cat).length;
+      if (!confirm(`سيُحذف تصنيف "${cat}" وكل عناصره (${n} عنصر) نهائياً. متابعة؟`)) return;
+      const deletedIds = MENU.filter(m=>m.cat===cat).map(m=>m.id);
+      MENU = MENU.filter(m=>m.cat!==cat);
+      deletedIds.forEach(id=>{ if (cart[id]) delete cart[id]; });
+      if (activeCat === cat){ const remaining = getCats(); activeCat = remaining[0] || ''; }
+      renderEditorList();
+      renderTabs();
+      renderMenu();
+      renderCartBar();
+      toast(`🗑 تم حذف تصنيف "${cat}" وكل عناصره`);
+      fsSaveConfigDebounced();
+    });
+  });
+}
+
 function editorRowHtml(item){
   return `
     <div class="editor-row">
@@ -1578,10 +1485,12 @@ function editorRowHtml(item){
       <div class="editor-info"><div class="editor-name">${item.name}</div><div class="editor-cat">${item.cat}</div></div>
       <div class="editor-price"><input type="number" min="0" step="500" data-price="${item.id}" value="${item.price}" /></div>
       <div class="toggle ${item.available?'on':''}" data-avail="${item.id}"><div class="toggle-knob"></div></div>
+      <button class="print-btn-sm" data-edit="${item.id}" style="color:var(--o-blue);border-color:rgba(91,156,246,.4)">✏️</button>
       <button class="del-btn" data-del="${item.id}">🗑</button>
     </div>`;
 }
 function renderEditorList(){
+  renderCategoryManageList();
   const el = document.getElementById('editorList');
   el.innerHTML = MENU.map(editorRowHtml).join('');
   el.querySelectorAll('[data-price]').forEach(inp=>{
@@ -1591,9 +1500,9 @@ function renderEditorList(){
       const item = MENU.find(m=>m.id===id);
       item.price = val;
       inp.value = val;
-      fbSaveMenuItemPatch(id, {price: val});
       renderMenu();
       toast('✅ تم حفظ السعر الجديد');
+      fsSaveConfigDebounced();
     });
   });
   el.querySelectorAll('[data-avail]').forEach(tg=>{
@@ -1603,11 +1512,14 @@ function renderEditorList(){
       item.available = !item.available;
       if (!item.available && cart[id]) delete cart[id];
       tg.classList.toggle('on', item.available);
-      fbSaveMenuItemPatch(id, {available: item.available});
       renderMenu();
       renderCartBar();
       toast(item.available ? `✅ ${item.name} متوفر الآن` : `🚫 ${item.name} غير متوفر اليوم`);
+      fsSaveConfigDebounced();
     });
+  });
+  el.querySelectorAll('[data-edit]').forEach(btn=>{
+    btn.addEventListener('click', ()=> openEditItemSheet(parseInt(btn.dataset.edit)));
   });
   el.querySelectorAll('[data-del]').forEach(btn=>{
     btn.addEventListener('click', ()=>{
@@ -1617,9 +1529,137 @@ function renderEditorList(){
       if (!confirm(`متأكد من حذف "${item.name}"؟ لا يمكن التراجع.`)) return;
       MENU = MENU.filter(m=>m.id!==id);
       if (cart[id]) delete cart[id];
-      fbDeleteMenuItem(id);
       renderEditorList(); renderMenu(); renderTabs(); renderCartBar();
       toast('🗑 تم حذف العنصر');
+      fsSaveConfigDebounced();
+    });
+  });
+}
+
+/* ---- تعديل صنف موجود (sheet كامل) ---- */
+const ALL_TAGS = ['الأكثر طلباً','جديد','حار خفيف','حار','نباتي','نباتي بدون اللحم','بدون غلوتين','عرض خاص'];
+const CAT_ICON_LIST = ['🔥','🍽️','🥗','🥤','🍰','🍕','🍔','🥪','🍟','🌯','🍖','🍗','🍢','🍛','🍚','🍲','🥬','🥣','🍆','🍵','💧','🧁','🫕','🥩','🧆','🫔','🌮'];
+
+let editPendingImage = null;
+let editPendingEmoji = '🍽️';
+
+function editItemFormHtml(item){
+  const catsOptions = getCats().map(c=>`<option value="${c}" ${c===item.cat?'selected':''}>${c}</option>`).join('') + `<option value="__new__">+ تصنيف جديد</option>`;
+  const tagsHtml = ALL_TAGS.map(t=>`<button type="button" class="edit-tag-btn ${item.tags.includes(t)?'active':''}" data-tag="${t}">${t}</button>`).join('');
+  return `
+    <h3>تعديل: ${item.name}</h3>
+    <div class="field"><label>الاسم *</label><input type="text" id="eiName" value="${item.name}" /></div>
+    <div class="field"><label>الوصف</label><textarea id="eiDesc" rows="2">${item.desc||''}</textarea></div>
+    <div class="field"><label>السعر (د.ع) *</label><input type="number" id="eiPrice" min="0" step="500" dir="ltr" style="text-align:left" value="${item.price}" /></div>
+    <div class="field">
+      <label>التصنيف</label>
+      <select id="eiCat">${catsOptions}</select>
+      <input type="text" id="eiCatNew" placeholder="اكتب اسم التصنيف الجديد" style="margin-top:.5rem;display:none" />
+    </div>
+    <div class="field">
+      <label>الوسوم (اختر واحداً أو أكثر)</label>
+      <div class="edit-tags-row" id="eiTagsRow">${tagsHtml}</div>
+    </div>
+    <div class="field">
+      <label>الصورة أو الرمز</label>
+      <div class="img-preview" id="eiImgPreview">${item.image ? `<img src="${item.image}" alt="">` : item.emoji}</div>
+      <input type="file" id="eiImgFile" accept="image/*" style="margin-bottom:.6rem" />
+      <div class="emoji-pick-grid" id="eiEmojiGrid"></div>
+    </div>
+    <div style="display:flex;gap:.6rem;margin-top:1.3rem">
+      <button class="send-btn" id="eiSaveBtn" style="background:linear-gradient(135deg,var(--c-saffron),var(--c-saffron-deep));box-shadow:none;flex:1">✅ حفظ التعديلات</button>
+    </div>
+  `;
+}
+
+function openEditItemSheet(id){
+  const item = MENU.find(m=>m.id===id);
+  if(!item) return;
+  editPendingImage = item.image || null;
+  editPendingEmoji = item.emoji || '🍽️';
+  showSheet(editItemFormHtml(item), ()=>{
+    /* تصنيف جديد */
+    document.getElementById('eiCat').addEventListener('change', e=>{
+      document.getElementById('eiCatNew').style.display = e.target.value==='__new__' ? '' : 'none';
+    });
+    /* وسوم */
+    document.getElementById('eiTagsRow').querySelectorAll('.edit-tag-btn').forEach(btn=>{
+      btn.addEventListener('click', ()=> btn.classList.toggle('active'));
+    });
+    /* رفع صورة */
+    document.getElementById('eiImgFile').addEventListener('change', e=>{
+      const file = e.target.files[0]; if(!file) return;
+      const reader = new FileReader();
+      reader.onload = ev=>{
+        editPendingImage = ev.target.result;
+        document.getElementById('eiImgPreview').innerHTML = `<img src="${editPendingImage}" alt="">`;
+      };
+      reader.readAsDataURL(file);
+    });
+    /* شبكة الرموز */
+    const grid = document.getElementById('eiEmojiGrid');
+    grid.innerHTML = EMOJI_CHOICES.map(em=>`<button type="button" class="emoji-pick ${em===editPendingEmoji?'active':''}" data-em="${em}">${em}</button>`).join('');
+    grid.querySelectorAll('.emoji-pick').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        editPendingEmoji = btn.dataset.em;
+        editPendingImage = null;
+        grid.querySelectorAll('.emoji-pick').forEach(b=>b.classList.toggle('active',b===btn));
+        document.getElementById('eiImgPreview').textContent = editPendingEmoji;
+      });
+    });
+    /* حفظ */
+    document.getElementById('eiSaveBtn').addEventListener('click', ()=>{
+      const name  = document.getElementById('eiName').value.trim();
+      const desc  = document.getElementById('eiDesc').value.trim();
+      const price = Math.max(0, parseInt(document.getElementById('eiPrice').value)||0);
+      let   cat   = document.getElementById('eiCat').value;
+      if(cat==='__new__') cat = document.getElementById('eiCatNew').value.trim() || 'أخرى';
+      if(!name || price<=0){ toast('⚠ اكتب الاسم والسعر'); return; }
+      const tags = [...document.getElementById('eiTagsRow').querySelectorAll('.edit-tag-btn.active')].map(b=>b.dataset.tag);
+      Object.assign(item, {name, desc, price, cat, tags, emoji:editPendingEmoji, image:editPendingImage});
+      hideSheet();
+      renderEditorList(); renderMenu(); renderTabs(); renderCartBar();
+      toast('✅ تم حفظ التعديلات');
+      fsSaveConfigDebounced();
+    });
+  });
+}
+
+/* ---- إضافة تصنيف جديد ---- */
+let newCatPendingIcon = CAT_ICON_LIST[0];
+function addCatFormHtml(){
+  const iconsHtml = CAT_ICON_LIST.map(ic=>`<button type="button" class="cat-icon-btn ${ic===newCatPendingIcon?'active':''}" data-icon="${ic}">${ic}</button>`).join('');
+  return `
+    <h3>إضافة تصنيف جديد</h3>
+    <div class="field"><label>اسم التصنيف *</label><input type="text" id="ncName" placeholder="مثال: مقليات" /></div>
+    <div class="field">
+      <label>أيقونة التصنيف</label>
+      <div style="text-align:center;font-size:2rem;margin-bottom:.5rem" id="ncIconPreview">${newCatPendingIcon}</div>
+      <div class="cat-icon-grid" id="ncIconGrid">${iconsHtml}</div>
+    </div>
+    <button class="send-btn" id="ncSubmit" style="background:linear-gradient(135deg,var(--o-amber),#c8900f);box-shadow:none;color:#1a1000">إضافة التصنيف</button>
+  `;
+}
+function openAddCatForm(){
+  newCatPendingIcon = CAT_ICON_LIST[0];
+  showSheet(addCatFormHtml(), ()=>{
+    document.getElementById('ncIconGrid').querySelectorAll('.cat-icon-btn').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        newCatPendingIcon = btn.dataset.icon;
+        document.getElementById('ncIconPreview').textContent = newCatPendingIcon;
+        document.getElementById('ncIconGrid').querySelectorAll('.cat-icon-btn').forEach(b=>b.classList.toggle('active',b===btn));
+      });
+    });
+    document.getElementById('ncSubmit').addEventListener('click', ()=>{
+      const name = document.getElementById('ncName').value.trim();
+      if(!name){ toast('⚠ اكتب اسم التصنيف'); return; }
+      if(getCats().includes(name)){ toast('⚠ هذا التصنيف موجود مسبقاً'); return; }
+      CAT_ICONS[name] = newCatPendingIcon;
+      hideSheet();
+      activeCat = name;
+      renderEditorList(); renderTabs(); renderMenu();
+      toast(`✅ تم إنشاء تصنيف "${name}"`);
+      fsSaveConfigDebounced();
     });
   });
 }
@@ -1641,7 +1681,7 @@ function addItemFormHtml(){
     </div>`;
   return `
     <h3>إضافة ${t} جديد</h3>
-    <div class="field"><label>اسم ${t} *</label><input type="text" id="niName" placeholder="مثال: ${bizType().item==='عقار'?'شقة طابقين في الحبوبي':'منتج جديد'}" /></div>
+    <div class="field"><label>اسم ${t} *</label><input type="text" id="niName" placeholder="مثال: شاورما دجاج" /></div>
     <div class="field"><label>الوصف (اختياري)</label><textarea id="niDesc" rows="2" placeholder="وصف قصير وجذاب"></textarea></div>
     <div class="field"><label>السعر (د.ع) *</label><input type="number" id="niPrice" min="0" step="500" dir="ltr" style="text-align:left" /></div>
     <div class="field">
@@ -1695,19 +1735,19 @@ function submitNewItem(){
     return;
   }
   const newId = Math.max(0, ...MENU.map(m=>m.id)) + 1;
-  const newItem = {
+  MENU.push({
     id:newId, cat, name, price,
     emoji: pendingNewItemEmoji, image: pendingNewItemImage,
     desc, tags:[], available:true
-  };
-  MENU.push(newItem);
-  fbSaveMenuItemPatch(newId, newItem); /* setDoc عبر patch لأن المفتاح جديد */
+  });
   hideSheet();
   activeCat = cat;
   renderTabs(); renderMenu(); renderEditorList();
   toast('✅ تمت إضافة الطبق بنجاح');
+  fsSaveConfigDebounced();
 }
 document.getElementById('addItemBtn').addEventListener('click', openAddItemForm);
+document.getElementById('addCatBtn').addEventListener('click', openAddCatForm);
 
 /* ============================================================ OWNER: SETTINGS ============================================================ */
 function renderBrandSwatches(){
@@ -1716,9 +1756,9 @@ function renderBrandSwatches(){
   el.querySelectorAll('.brand-swatch').forEach(btn=>{
     btn.addEventListener('click', ()=>{
       applyBrandColor(btn.dataset.key);
-      fbSaveSettings();
       el.querySelectorAll('.brand-swatch').forEach(b=>b.classList.toggle('active', b===btn));
       toast('✅ تم تغيير لون العلامة');
+      fsSaveConfigDebounced();
     });
   });
 }
@@ -1782,43 +1822,37 @@ function initSettingsForm(){
   document.getElementById('setName').addEventListener('input', (e)=>{
     SETTINGS.name = e.target.value || 'مطعمك';
     document.getElementById('heroName').textContent = SETTINGS.name;
-    fbSaveSettings();
   });
   document.getElementById('setTagline').addEventListener('input', (e)=>{
     SETTINGS.tagline = e.target.value;
     document.getElementById('heroTagline').textContent = SETTINGS.tagline;
-    fbSaveSettings();
   });
-  document.getElementById('setWa').addEventListener('input', (e)=>{ SETTINGS.wa = e.target.value.replace(/[^0-9]/g,''); fbSaveSettings(); });
-  document.getElementById('setInsta').addEventListener('input', (e)=>{ SETTINGS.instagram = e.target.value; fbSaveSettings(); });
-  document.getElementById('setFb').addEventListener('input', (e)=>{ SETTINGS.facebook = e.target.value; fbSaveSettings(); });
-  document.getElementById('setHours').addEventListener('input', (e)=>{ SETTINGS.hours = e.target.value; fbSaveSettings(); });
-  document.getElementById('setAddress').addEventListener('input', (e)=>{ SETTINGS.address = e.target.value; fbSaveSettings(); });
-  document.getElementById('setMaps').addEventListener('input', (e)=>{ SETTINGS.mapsUrl = e.target.value; fbSaveSettings(); });
-  document.getElementById('setMinOrder').addEventListener('input', (e)=>{ SETTINGS.minOrder = Math.max(0, parseInt(e.target.value)||0); fbSaveSettings(); });
-  document.getElementById('setDeliveryFee').addEventListener('input', (e)=>{ SETTINGS.deliveryFee = Math.max(0, parseInt(e.target.value)||0); fbSaveSettings(); });
+  document.getElementById('setWa').addEventListener('input', (e)=>{ SETTINGS.wa = e.target.value.replace(/[^0-9]/g,''); fsSaveConfigDebounced(); });
+  document.getElementById('setInsta').addEventListener('input', (e)=>{ SETTINGS.instagram = e.target.value; fsSaveConfigDebounced(); });
+  document.getElementById('setFb').addEventListener('input', (e)=>{ SETTINGS.facebook = e.target.value; fsSaveConfigDebounced(); });
+  document.getElementById('setHours').addEventListener('input', (e)=>{ SETTINGS.hours = e.target.value; fsSaveConfigDebounced(); });
+  document.getElementById('setAddress').addEventListener('input', (e)=>{ SETTINGS.address = e.target.value; fsSaveConfigDebounced(); });
+  document.getElementById('setMaps').addEventListener('input', (e)=>{ SETTINGS.mapsUrl = e.target.value; fsSaveConfigDebounced(); });
+  document.getElementById('setMinOrder').addEventListener('input', (e)=>{ SETTINGS.minOrder = Math.max(0, parseInt(e.target.value)||0); fsSaveConfigDebounced(); });
+  document.getElementById('setDeliveryFee').addEventListener('input', (e)=>{ SETTINGS.deliveryFee = Math.max(0, parseInt(e.target.value)||0); fsSaveConfigDebounced(); });
   document.getElementById('setLoyaltyN').addEventListener('input', (e)=>{
     SETTINGS.loyaltyThreshold = Math.max(1, parseInt(e.target.value)||5);
-    fbSaveSettings();
     renderLoyalty();
+    fsSaveConfigDebounced();
   });
   document.getElementById('setLoyaltyReward').addEventListener('input', (e)=>{
     SETTINGS.loyaltyReward = e.target.value || 'هدية';
-    fbSaveSettings();
     renderLoyalty();
+    fsSaveConfigDebounced();
   });
   document.getElementById('setPin').addEventListener('input', (e)=>{
     const val = e.target.value.trim();
-    if (val.length >= 4){
-      SETTINGS.pin = val;
-      fbSaveSecurity();
-      toast('✅ تم حفظ كلمة مرور المالك');
-    }
+    if (val.length >= 4){ SETTINGS.pin = val; toast('✅ تم حفظ كلمة مرور المالك'); fsSaveConfigDebounced(); }
   });
   document.getElementById('setSoundToggle').addEventListener('click', ()=>{
     SETTINGS.soundEnabled = !SETTINGS.soundEnabled;
     document.getElementById('setSoundToggle').classList.toggle('on', SETTINGS.soundEnabled);
-    fbSaveSettings();
+    fsSaveConfigDebounced();
   });
   document.getElementById('setCustomColor').addEventListener('input', (e)=>{
     document.getElementById('customColorHex').textContent = e.target.value.toUpperCase();
@@ -1826,19 +1860,19 @@ function initSettingsForm(){
   document.getElementById('applyCustomColorBtn').addEventListener('click', ()=>{
     const hex = document.getElementById('setCustomColor').value;
     applyCustomBrandColor(hex);
-    fbSaveSettings();
     document.querySelectorAll('.brand-swatch').forEach(b=>b.classList.remove('active'));
     toast('✅ تم تطبيق اللون الحر');
+    fsSaveConfigDebounced();
   });
 
   renderBrandSwatches();
 }
 
 function exportOrders(){
-  let csv = 'رقم الطلب,الاسم,الهاتف,نوع الطلب,الأصناف,ملاحظة,رسوم التوصيل,الإجمالي,الحالة,جهّزه,الوقت\n';
+  let csv = 'رقم الطلب,الاسم,الهاتف,نوع الطلب,الأصناف,ملاحظة,رسوم التوصيل,الإجمالي,الحالة,استلمه,وقت الاستلام,وقت الطلب\n';
   ORDERS.forEach(o=>{
     const itemsStr = o.items.map(i=>`${i.name} x${i.qty}`).join('; ');
-    csv += `${o.num},${o.customerName},${o.customerPhone||''},${o.type},"${itemsStr}",${o.note||''},${o.deliveryFee||0},${o.total},${STATUS_LABELS[o.statusIdx]},${o.handledBy||''},${o.time}\n`;
+    csv += `${o.num},${o.customerName},${o.customerPhone||''},${o.type},"${itemsStr}",${o.note||''},${o.deliveryFee||0},${o.total},${STATUS_LABELS[o.statusIdx]},${o.handledBy||''},${o.receivedAt||''},${o.time}\n`;
   });
   const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8;'});
   const url = URL.createObjectURL(blob);
@@ -1881,14 +1915,14 @@ function exportDayData(dateKey){
     toast('⚠ لا توجد بيانات في هذا اليوم لتحميلها');
     return;
   }
-  let csv = 'النوع,الرقم,الاسم,الهاتف,التفاصيل,المبلغ,الحالة,جهّزه,الوقت\n';
+  let csv = 'النوع,الرقم,الاسم,الهاتف,التفاصيل,المبلغ,الحالة,استلمه,وقت الاستلام,الوقت\n';
   dayOrders.forEach(o=>{
     const itemsStr = o.items.map(i=>`${i.name} x${i.qty}`).join('; ');
-    csv += `طلب,${o.num},${o.customerName},${o.customerPhone||''},"${itemsStr}",${o.total},${STATUS_LABELS[o.statusIdx]},${o.handledBy||''},${o.time}\n`;
+    csv += `طلب,${o.num},${o.customerName},${o.customerPhone||''},"${itemsStr}",${o.total},${STATUS_LABELS[o.statusIdx]},${o.handledBy||''},${o.receivedAt||''},${o.time}\n`;
   });
   dayComplaints.forEach(c=>{
     const safeMsg = (c.message||'').replace(/"/g,'""');
-    csv += `شكوى,${c.num},${c.customerName},${c.customerPhone||''},"${safeMsg}",,${c.status},,${c.time}\n`;
+    csv += `شكوى,${c.num},${c.customerName},${c.customerPhone||''},"${safeMsg}",,${c.status},,,${c.time}\n`;
   });
   const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8;'});
   const url = URL.createObjectURL(blob);
@@ -1956,7 +1990,8 @@ function submitComplaint(){
     time: nowStamp(), createdHour: new Date().getHours(), dateKey: todayKey(), status: 'جديدة'
   };
   COMPLAINTS.unshift(complaint);
-  fbSaveComplaint(complaint);
+  fsSaveComplaint(complaint);
+  fsSaveConfigDebounced();
   saveArchive();
   sendComplaintToWhatsApp(complaint);
   hideSheet();
@@ -2136,7 +2171,6 @@ function openEmployeePasswordPad(employee){
     () => {
       currentActorName = employee.name;
       employee.lastLogin = nowStamp();
-      fbSaveEmployee(employee);
       setMode('employee');
     }
   );
@@ -2148,13 +2182,19 @@ function openEmployeePasswordPad(employee){
 function applyTheme(){
   const bf = FONT_OPTIONS[THEME.bodyFont] || FONT_OPTIONS.tajawal;
   const df = DISPLAY_FONT_OPTIONS[THEME.displayFont] || DISPLAY_FONT_OPTIONS.lalezar;
-  const r = RADIUS_PRESETS[THEME.radius] || RADIUS_PRESETS.rounded;
   const root = document.documentElement.style;
   root.setProperty('--font-body', bf.stack);
   root.setProperty('--font-display', df.stack);
-  root.setProperty('--radius-lg', r.lg);
-  root.setProperty('--radius-md', r.md);
-  root.setProperty('--radius-sm', r.sm);
+  root.setProperty('--radius-lg', THEME.radiusLg + 'px');
+  root.setProperty('--radius-md', THEME.radiusMd + 'px');
+  root.setProperty('--radius-sm', THEME.radiusSm + 'px');
+  root.setProperty('--c-bg', THEME.bgColor);
+  root.setProperty('--c-panel', THEME.panelColor);
+  root.setProperty('--c-panel-2', THEME.panel2Color);
+  root.setProperty('--c-ink', THEME.inkColor);
+  root.setProperty('--c-ink-soft', darkenHex(THEME.inkColor, -0.15));
+  root.setProperty('--c-line', hexToRgba(THEME.inkColor, 0.14));
+  root.setProperty('--c-muted', hexToRgba(THEME.inkColor, 0.62));
 }
 
 function renderDevDesignControls(){
@@ -2162,20 +2202,41 @@ function renderDevDesignControls(){
   bodySel.innerHTML = Object.entries(FONT_OPTIONS).map(([k,v])=>`<option value="${k}" ${k===THEME.bodyFont?'selected':''}>${v.name}</option>`).join('');
   const displaySel = document.getElementById('devDisplayFont');
   displaySel.innerHTML = Object.entries(DISPLAY_FONT_OPTIONS).map(([k,v])=>`<option value="${k}" ${k===THEME.displayFont?'selected':''}>${v.name}</option>`).join('');
+  bodySel.onchange = (e)=>{ THEME.bodyFont = e.target.value; applyTheme(); toast('✅ تم تغيير خط النصوص'); fsSaveConfigDebounced(); };
+  displaySel.onchange = (e)=>{ THEME.displayFont = e.target.value; applyTheme(); toast('✅ تم تغيير خط العناوين'); fsSaveConfigDebounced(); };
 
-  bodySel.onchange = (e)=>{ THEME.bodyFont = e.target.value; applyTheme(); fbSaveTheme(); toast('✅ تم تغيير خط النصوص'); };
-  displaySel.onchange = (e)=>{ THEME.displayFont = e.target.value; applyTheme(); fbSaveTheme(); toast('✅ تم تغيير خط العناوين'); };
-
-  document.querySelectorAll('.radius-opt').forEach(btn=>{
-    btn.classList.toggle('active', btn.dataset.radius === THEME.radius);
-    btn.onclick = ()=>{
-      THEME.radius = btn.dataset.radius;
-      applyTheme();
-      fbSaveTheme();
-      document.querySelectorAll('.radius-opt').forEach(b=>b.classList.toggle('active', b===btn));
-      toast('✅ تم تغيير شكل الزوايا');
-    };
+  const colorFields = [
+    ['devBgColor','bgColor','تم تغيير خلفية الصفحة'],
+    ['devPanelColor','panelColor','تم تغيير خلفية البطاقات'],
+    ['devPanel2Color','panel2Color','تم تغيير الخلفية الثانوية'],
+    ['devInkColor','inkColor','تم تغيير لون النص'],
+  ];
+  colorFields.forEach(([elId, themeKey, msg])=>{
+    const el = document.getElementById(elId);
+    el.value = THEME[themeKey];
+    el.oninput = (e)=>{ THEME[themeKey] = e.target.value; applyTheme(); };
+    el.onchange = ()=>{ toast('✅ ' + msg); fsSaveConfigDebounced(); };
   });
+
+  const radiusFields = [['devRadiusLg','radiusLg'],['devRadiusMd','radiusMd'],['devRadiusSm','radiusSm']];
+  radiusFields.forEach(([elId, themeKey])=>{
+    const el = document.getElementById(elId);
+    el.value = THEME[themeKey];
+    el.oninput = (e)=>{
+      THEME[themeKey] = Math.min(60, Math.max(0, parseInt(e.target.value)||0));
+      applyTheme();
+    };
+    el.onchange = ()=>{ toast('✅ تم تغيير استدارة الزوايا'); fsSaveConfigDebounced(); };
+  });
+
+  document.getElementById('devResetThemeBtn').onclick = ()=>{
+    if (!confirm('سيُعاد التصميم بالكامل (الألوان والخطوط والاستدارة) للوضع الافتراضي. متابعة؟')) return;
+    THEME = JSON.parse(JSON.stringify(DEFAULT_THEME));
+    applyTheme();
+    renderDevDesignControls();
+    toast('↺ تم استعادة التصميم الافتراضي');
+    fsSaveConfigDebounced();
+  };
 }
 
 function renderDevFeatureToggles(){
@@ -2190,9 +2251,9 @@ function renderDevFeatureToggles(){
       const key = tg.dataset.feat;
       FEATURES[key] = !FEATURES[key];
       tg.classList.toggle('on', FEATURES[key]);
-      fbSaveFeatures();
       applyFeatures();
       toast(FEATURES[key] ? `✅ تم تفعيل: ${FEATURE_LABELS[key]}` : `🚫 تم إيقاف: ${FEATURE_LABELS[key]}`);
+      fsSaveConfigDebounced();
     });
   });
 }
@@ -2212,9 +2273,9 @@ function renderDevEmployeeResetList(){
       const emp = EMPLOYEES.find(x=>x.id===id);
       if (val.length < 4){ toast('⚠ كلمة المرور يجب أن تكون ٤ خانات على الأقل'); inp.value=''; return; }
       emp.password = val;
-      fbSaveEmployee(emp);
       inp.value = '';
       toast(`✅ تم تغيير كلمة مرور ${emp.name}`);
+      fsSaveConfigDebounced();
     });
   });
 }
@@ -2222,20 +2283,20 @@ document.getElementById('devSetOwnerPinBtn').addEventListener('click', ()=>{
   const val = document.getElementById('devNewOwnerPin').value.trim();
   if (val.length < 4){ toast('⚠ كلمة المرور يجب أن تكون ٤ خانات على الأقل'); return; }
   SETTINGS.pin = val;
-  fbSaveSecurity();
   document.getElementById('devNewOwnerPin').value = '';
   toast('✅ تم تغيير كلمة مرور دخول المالك');
+  fsSaveConfigDebounced();
 });
 document.getElementById('devSetDevPwBtn').addEventListener('click', ()=>{
   const val = document.getElementById('devNewDevPw').value.trim();
   if (val.length < 4){ toast('⚠ كلمة المرور يجب أن تكون ٤ خانات على الأقل'); return; }
   DEV_PASSWORD = val;
-  fbSaveSecurity();
   document.getElementById('devNewDevPw').value = '';
   toast('✅ تم تغيير كلمة مرور المطوّر — احفظها في مكان آمن');
+  fsSaveConfig(); // فوري — تغيير كلمة المطوّر لا ينتظر debounce
 });
 document.getElementById('devCopySettingsBtn').addEventListener('click', ()=>{
-  const data = JSON.stringify({SETTINGS, EMPLOYEES}, null, 2);
+  const data = JSON.stringify({SETTINGS, EMPLOYEES, FEATURES, THEME, DEV_PASSWORD}, null, 2);
   if (navigator.clipboard && navigator.clipboard.writeText){
     navigator.clipboard.writeText(data).then(()=> toast('✅ تم نسخ الإعدادات')).catch(()=> toast('⚠ تعذّر النسخ التلقائي'));
   } else {
@@ -2243,18 +2304,11 @@ document.getElementById('devCopySettingsBtn').addEventListener('click', ()=>{
   }
 });
 document.getElementById('devWipeOrdersBtn').addEventListener('click', ()=>{
-  if (!confirm('سيتم حذف كل الطلبيات نهائياً من Firebase. متابعة؟')) return;
-  /* حذف كل الطلبيات من Firestore */
-  if(fbReady){
-    const {db, collection, getDocs, deleteDoc} = window.__fb;
-    getDocs(collection(db,'orders')).then(snap=>{
-      snap.forEach(d=> deleteDoc(d.ref));
-    });
-  }
+  if (!confirm('سيتم حذف كل الطلبيات من الذاكرة. (لا تُحذف من Firestore تلقائياً — احذفها من Firebase Console إذا لزم) متابعة؟')) return;
   ORDERS = [];
   sessionOrderCount = 0;
   renderStatGrid();
-  toast('✅ تم تصفير كل الطلبيات');
+  toast('✅ تم تصفير الطلبيات من الذاكرة');
 });
 
 /* ============================================================ OWNER: EMPLOYEE MANAGEMENT ============================================================ */
@@ -2282,8 +2336,8 @@ function renderEmployeeList(){
       const emp = EMPLOYEES.find(e=>e.id===id);
       if (val.length < 4){ toast('⚠ كلمة المرور يجب أن تكون ٤ خانات على الأقل'); renderEmployeeList(); return; }
       emp.password = val;
-      fbSaveEmployee(emp);
       toast(`✅ تم تحديث كلمة مرور ${emp.name}`);
+      fsSaveConfigDebounced();
     });
   });
   el.querySelectorAll('[data-emp-active]').forEach(tg=>{
@@ -2291,9 +2345,9 @@ function renderEmployeeList(){
       const id = parseInt(tg.dataset.empActive);
       const emp = EMPLOYEES.find(e=>e.id===id);
       emp.active = !emp.active;
-      fbSaveEmployee(emp);
       renderEmployeeList();
       toast(emp.active ? `✅ ${emp.name} مفعّل ويقدر يسجّل دخول` : `🚫 ${emp.name} موقوف مؤقتاً عن الدخول`);
+      fsSaveConfigDebounced();
     });
   });
   el.querySelectorAll('[data-emp-del]').forEach(btn=>{
@@ -2303,9 +2357,9 @@ function renderEmployeeList(){
       if (!emp) return;
       if (!confirm(`متأكد من حذف الموظف "${emp.name}"؟`)) return;
       EMPLOYEES = EMPLOYEES.filter(e=>e.id!==id);
-      fbDeleteEmployee(id);
       renderEmployeeList();
       toast('🗑 تم حذف الموظف');
+      fsSaveConfigDebounced();
     });
   });
 }
@@ -2326,30 +2380,21 @@ function openAddEmployeeForm(){
       if (!name){ document.getElementById('neError').textContent = 'اكتب اسم الموظف'; return; }
       if (pw.length < 4){ document.getElementById('neError').textContent = 'كلمة المرور يجب أن تكون ٤ خانات على الأقل'; return; }
       const newId = Math.max(0, ...EMPLOYEES.map(e=>e.id)) + 1;
-      const newEmp = {id:newId, name, password:pw, active:true, lastLogin:null};
-      EMPLOYEES.push(newEmp);
-      fbSaveEmployee(newEmp);
+      EMPLOYEES.push({id:newId, name, password:pw, active:true, lastLogin:null});
       hideSheet();
       renderEmployeeList();
       toast('✅ تمت إضافة الموظف بنجاح');
+      fsSaveConfigDebounced();
     });
   });
 }
 document.getElementById('addEmployeeBtn').addEventListener('click', openAddEmployeeForm);
 
 /* ============================================================ INIT ============================================================ */
-
-/* دالة التهيئة الفعلية — تُستدعى بعد تحميل Firebase */
-function postLoadInit(){
+function startApp(){
   applyTheme();
-  /* تطبيق اللون المحفوظ */
-  if(SETTINGS.customHex) applyCustomBrandColor(SETTINGS.customHex);
-  else if(SETTINGS.brandKey && SETTINGS.brandKey !== 'custom') applyBrandColor(SETTINGS.brandKey);
-
-  document.getElementById('heroName').textContent    = SETTINGS.name;
-  document.getElementById('heroTagline').textContent = SETTINGS.tagline;
-  document.getElementById('statsDateInput').value    = selectedStatsDate;
-  document.getElementById('archiveDateInput').value  = selectedArchiveDate;
+  document.getElementById('statsDateInput').value = selectedStatsDate;
+  document.getElementById('archiveDateInput').value = selectedArchiveDate;
   renderTabs();
   renderMenu();
   renderCartBar();
@@ -2363,20 +2408,49 @@ function postLoadInit(){
   setMode('customer');
 }
 
-/* انتظار Firebase ثم تحميل البيانات */
-window.addEventListener('firebase-ready', ()=>{
-  fbLoadAll();
-});
+function setLoadingMsg(msg){ const el = document.getElementById('loadingMsg'); if(el) el.textContent = msg; }
+function hideLoading(){
+  const ls = document.getElementById('loadingScreen');
+  if (!ls) return;
+  ls.style.transition = 'opacity .3s';
+  ls.style.opacity = '0';
+  setTimeout(()=>ls.remove(), 320);
+}
 
-/* timeout للحماية إذا فشل تحميل Firebase script نفسه */
-setTimeout(()=>{
-  if(!fbReady){
-    console.warn('Firebase لم يستجب — تشغيل بوضع offline (localStorage)');
-    loadArchiveFallback();
-    postLoadInit();
-    hideLoading();
+window.addEventListener('online',  ()=>{ const b=document.getElementById('connBadge'); if(b){ b.textContent='☁️ متصل'; b.className='conn-badge conn-online'; setTimeout(()=>b.className='conn-badge',3000); } });
+window.addEventListener('offline', ()=>{ const b=document.getElementById('connBadge'); if(b){ b.textContent='⚡ بدون إنترنت — البيانات محفوظة محلياً'; b.className='conn-badge conn-offline'; } });
+
+/* ------------------------------------------------------------------
+   الإقلاع السريع:
+   ١) تحميل localStorage فوراً → عرض الواجهة في < 100ms
+   ٢) Firebase يتزامن في الخلفية بدون أي انتظار من الزبون
+------------------------------------------------------------------ */
+(async()=>{
+  // ① تحميل فوري من localStorage (< 50ms)
+  loadArchive();
+  hideLoading();
+  startApp();
+
+  // ② مزامنة Firebase في الخلفية — الزبون لا يرى أي توقف
+  try{
+    await fsLoadAll();
+    firebaseReady = true;
+    // حفظ البيانات المحدّثة محلياً
+    saveArchive();
+    // تحديث الواجهة إذا تغيّرت بيانات القائمة أو الإعدادات
+    applyTheme();
+    renderMenu();
+    renderTabs();
+    renderStatGrid();
+    renderEmployeeList();
+    applyFeatures();
+    // تشغيل المستمع الفوري للطلبيات
+    startRealtimeListeners();
+  }catch(e){
+    console.warn('[تموز] Firebase background sync:', e.message);
   }
-}, 8000);
+})();
+
 </script>
 </body>
 </html>
