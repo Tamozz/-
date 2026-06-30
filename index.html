@@ -633,7 +633,7 @@ body.mode-dark .brand small{color:var(--o-muted)}
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import {
   getFirestore, collection, doc, getDoc, getDocs, setDoc,
-  onSnapshot, query, orderBy, limit, enableIndexedDbPersistence
+  onSnapshot, query, orderBy, limit
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
 const firebaseConfig = {
@@ -646,26 +646,30 @@ const firebaseConfig = {
   measurementId:    "G-K4J61DFMP5"
 };
 
-const fbApp = initializeApp(firebaseConfig);
-db = getFirestore(fbApp);
+try{
+  const fbApp = initializeApp(firebaseConfig);
+  const _db   = getFirestore(fbApp);
 
-// دعم العمل بدون إنترنت (IndexedDB cache)
-enableIndexedDbPersistence(db).catch(()=>{});
+  // نُعرّض كل شيء على window ليصل إليه الكود الرئيسي
+  window._fbDB          = _db;
+  window._fbConfigRef   = doc(_db, 'config', 'main');
+  window._fbOrdersCol   = collection(_db, 'orders');
+  window._fbComplCol    = collection(_db, 'complaints');
+  window._fsGetDoc      = getDoc;
+  window._fsGetDocs     = getDocs;
+  window._fsSetDoc      = setDoc;
+  window._fsDoc         = doc;
+  window._fsQuery       = query;
+  window._fsOrderBy     = orderBy;
+  window._fsLimit       = limit;
+  window._fsOnSnapshot  = onSnapshot;
 
-CONFIG_REF    = doc(db, 'config',     'main');
-ORDERS_COL    = collection(db, 'orders');
-COMPLAINTS_COL= collection(db, 'complaints');
-
-// نُعرّض دوال Firestore على window حتى تستخدمها دوال الـ async في الأسفل
-window._fsGetDoc  = getDoc;
-window._fsGetDocs = getDocs;
-window._fsSetDoc  = setDoc;
-window._fsDoc     = doc;
-window._fsQuery   = query;
-window._fsOrderBy = orderBy;
-window._fsLimit   = limit;
-window._fsOnSnapshot = onSnapshot;
-// Firebase جاهز — التحميل الفعلي يحدث في الـ IIFE أسفل الصفحة
+  // أعلن للكود الرئيسي أن Firebase جاهز
+  window._firebaseModuleReady = true;
+}catch(err){
+  console.warn('[تموز] Firebase init failed:', err.message);
+  window._firebaseModuleReady = false;
+}
 
 /* ============================================================ STATE ============================================================ */
 let MENU = [
@@ -797,7 +801,7 @@ function complaintsForYear(y){ return COMPLAINTS.filter(c=>yearKeyOf(c.dateKey)=
    إن تعذّر الوصول للتخزين (وضع التصفح الخاص، أو معاينة داخل بيئة مقيّدة) يستمر النظام
    بالعمل بشكل طبيعي في الذاكرة المؤقتة فقط دون أي عطل. */
 /* ============================================================ FIREBASE / FIRESTORE ============================================================ */
-let db, auth, CONFIG_REF, ORDERS_COL, COMPLAINTS_COL;
+let db, CONFIG_REF, ORDERS_COL, COMPLAINTS_COL;
 let unsubOrders = null;
 let configSaveTimer = null;
 let firebaseReady = false;
@@ -2414,42 +2418,66 @@ function hideLoading(){
   if (!ls) return;
   ls.style.transition = 'opacity .3s';
   ls.style.opacity = '0';
-  setTimeout(()=>ls.remove(), 320);
+  setTimeout(()=>{ if(ls.parentNode) ls.parentNode.removeChild(ls); }, 320);
 }
 
 window.addEventListener('online',  ()=>{ const b=document.getElementById('connBadge'); if(b){ b.textContent='☁️ متصل'; b.className='conn-badge conn-online'; setTimeout(()=>b.className='conn-badge',3000); } });
 window.addEventListener('offline', ()=>{ const b=document.getElementById('connBadge'); if(b){ b.textContent='⚡ بدون إنترنت — البيانات محفوظة محلياً'; b.className='conn-badge conn-offline'; } });
 
 /* ------------------------------------------------------------------
-   الإقلاع السريع:
-   ١) تحميل localStorage فوراً → عرض الواجهة في < 100ms
-   ٢) Firebase يتزامن في الخلفية بدون أي انتظار من الزبون
+   الإقلاع:
+   ١) تحميل localStorage فوراً → عرض الواجهة بدون انتظار
+   ٢) ربط Firebase (بعد أن يُجهّزه الـ module script)
+   ٣) مزامنة Firestore في الخلفية
 ------------------------------------------------------------------ */
-(async()=>{
-  // ① تحميل فوري من localStorage (< 50ms)
-  loadArchive();
-  hideLoading();
-  startApp();
+function connectFirebase(){
+  // ربط المتغيرات من window (أعدّها الـ module script)
+  db            = window._fbDB;
+  CONFIG_REF    = window._fbConfigRef;
+  ORDERS_COL    = window._fbOrdersCol;
+  COMPLAINTS_COL= window._fbComplCol;
+}
 
-  // ② مزامنة Firebase في الخلفية — الزبون لا يرى أي توقف
+async function syncFirebase(){
   try{
+    connectFirebase();
     await fsLoadAll();
     firebaseReady = true;
-    // حفظ البيانات المحدّثة محلياً
     saveArchive();
-    // تحديث الواجهة إذا تغيّرت بيانات القائمة أو الإعدادات
     applyTheme();
+    if(SETTINGS.customHex) applyCustomBrandColor(SETTINGS.customHex);
+    else if(SETTINGS.brandKey && SETTINGS.brandKey!=='custom') applyBrandColor(SETTINGS.brandKey);
     renderMenu();
     renderTabs();
     renderStatGrid();
     renderEmployeeList();
     applyFeatures();
-    // تشغيل المستمع الفوري للطلبيات
+    initSettingsForm();
     startRealtimeListeners();
   }catch(e){
-    console.warn('[تموز] Firebase background sync:', e.message);
+    console.warn('[تموز] Firebase sync error:', e.message);
   }
-})();
+}
+
+// ① تشغيل فوري من localStorage
+loadArchive();
+hideLoading();
+startApp();
+
+// ② انتظر module script ينتهي ثم زامن Firebase
+// الـ module scripts تعمل بعد DOMContentLoaded — نستخدم polling بسيط
+const _fbWait = setInterval(()=>{
+  if(window._fbDB !== undefined){
+    clearInterval(_fbWait);
+    syncFirebase();
+  }
+}, 50);
+
+// timeout للحماية: إذا لم يأت Firebase بعد 6 ثواني نكتفي بـ localStorage
+setTimeout(()=>{
+  clearInterval(_fbWait);
+  if(!firebaseReady) console.warn('[تموز] Firebase لم يستجب — نعمل بـ localStorage فقط');
+}, 6000);
 
 </script>
 </body>
